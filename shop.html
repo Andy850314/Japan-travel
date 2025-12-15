@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>日本購物與旅遊清單 APP</title>
+    <!-- 載入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <!-- 載入 Font Awesome 圖標 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            padding-bottom: 90px;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        html { scroll-behavior: smooth; }
+
+        /* 分頁切換邏輯 */
+        .tab-content {
+            display: none;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .tab-content.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .card-img {
+            height: 160px;
+            object-fit: cover;
+            width: 100%;
+            transition: transform 0.3s ease;
+        }
+        
+        .card:active .card-img {
+            transform: scale(1.05);
+        }
+
+        /* 底部導航欄 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 -4px 10px rgba(0,0,0,0.05);
+            z-index: 50;
+            padding-bottom: env(safe-area-inset-bottom);
+            border-top: 1px solid #e5e7eb;
+        }
+        .nav-item {
+            color: #9ca3af;
+            transition: all 0.2s;
+        }
+        .nav-item.active {
+            color: #ec4899; /* Pink-500 */
+            transform: translateY(-2px);
+        }
+        .nav-item.active i {
+            filter: drop-shadow(0 2px 4px rgba(236, 72, 153, 0.3));
+        }
+
+        /* 地點標籤 */
+        .location-badge {
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background-color: rgba(255, 255, 255, 0.9);
+            color: #4b5563;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        /* 橫向捲動篩選器 */
+        .filter-scroll {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 8px 4px;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none;  /* IE 10+ */
+        }
+        .filter-scroll::-webkit-scrollbar {
+            display: none; /* Chrome/Safari */
+        }
+        .filter-btn {
+            white-space: nowrap;
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background-color: white;
+            border: 1px solid #e5e7eb;
+            color: #6b7280;
+            transition: all 0.2s;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .filter-btn.active {
+            background-color: #1f2937;
+            color: white;
+            border-color: #1f2937;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="max-w-md mx-auto min-h-screen bg-white shadow-xl relative overflow-hidden">
+        
+        <!-- Header -->
+        <header class="bg-gradient-to-br from-pink-500 to-rose-600 text-white p-6 pt-10 pb-4 shadow-lg sticky top-0 z-40">
+            <div class="flex justify-between items-center mb-4">
+                <div>
+                    <h1 class="text-2xl font-extrabold tracking-tight">Japan Trip 🇯🇵</h1>
+                    <p class="text-pink-100 text-xs mt-1 font-medium">購物清單 & 旅遊攻略</p>
+                </div>
+                <div class="text-right bg-white/10 p-2 rounded-lg backdrop-blur-sm">
+                    <span class="text-xl font-bold block leading-none" id="visible-count">0</span>
+                    <span class="text-[10px] text-pink-100">顯示項目</span>
+                </div>
+            </div>
+
+            <!-- 搜尋欄 -->
+            <div class="relative mb-4">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-pink-200"></i>
+                <input type="text" id="search-input" placeholder="搜尋商品、地點..." class="w-full bg-white/20 backdrop-blur-md text-white placeholder-pink-200 pl-10 pr-4 py-2.5 rounded-xl border border-white/30 focus:outline-none focus:bg-white/30 focus:border-white/50 transition-all text-sm shadow-inner" onkeyup="applyFilters()">
+                <button id="clear-search" class="hidden absolute right-3 top-2.5 text-pink-200 hover:text-white" onclick="resetSearch()">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                </button>
+            </div>
+
+            <!-- 地點篩選 (橫向捲動) -->
+            <div class="filter-scroll" id="location-filters">
+                <button class="filter-btn active" onclick="filterLocation('all', this)">全部</button>
+                <button class="filter-btn" onclick="filterLocation('drugstore', this)">💊 藥妝店</button>
+                <button class="filter-btn" onclick="filterLocation('cvs', this)">🏪 超商/超市</button>
+                <button class="filter-btn" onclick="filterLocation('tokyo_st', this)">🚉 東京車站</button>
+                <button class="filter-btn" onclick="filterLocation('ginza', this)">🛍️ 銀座</button>
+                <button class="filter-btn" onclick="filterLocation('shibuya', this)">🐕 澀谷/原宿</button>
+                <button class="filter-btn" onclick="filterLocation('ueno', this)">🐼 上野/淺草</button>
+                <button class="filter-btn" onclick="filterLocation('airport', this)">✈️ 機場</button>
+                <button class="filter-btn" onclick="filterLocation('dept', this)">🏬 百貨公司</button>
+                <button class="filter-btn" onclick="filterLocation('other', this)">📍 景點/其他</button>
+            </div>
+        </header>
+
+        <!-- 內容區塊 -->
+        <main class="px-3 py-4 pb-24 bg-gray-50 min-h-[80vh]">
+            
+            <!-- 1. 美妝藥妝 -->
+            <section id="beauty" class="tab-content active">
+                <div class="flex items-center mb-3 px-1 sticky top-[180px] z-30 py-2 bg-gray-50/95 backdrop-blur-sm">
+                    <span class="w-1.5 h-5 bg-pink-500 rounded-full mr-2 shadow-sm"></span>
+                    <h2 class="text-lg font-bold text-gray-800">美妝 & 藥妝</h2>
+                </div>
+                <div id="beauty-list" class="grid grid-cols-2 gap-3"></div>
+            </section>
+
+            <!-- 2. 服飾穿搭 -->
+            <section id="fashion" class="tab-content">
+                <div class="flex items-center mb-3 px-1 sticky top-[180px] z-30 py-2 bg-gray-50/95 backdrop-blur-sm">
+                    <span class="w-1.5 h-5 bg-indigo-500 rounded-full mr-2 shadow-sm"></span>
+                    <h2 class="text-lg font-bold text-gray-800">服飾 & 穿搭</h2>
+                </div>
+                <div id="fashion-list" class="grid grid-cols-2 gap-3"></div>
+            </section>
+
+            <!-- 3. 美食伴手禮 -->
+            <section id="food" class="tab-content">
+                <div class="flex items-center mb-3 px-1 sticky top-[180px] z-30 py-2 bg-gray-50/95 backdrop-blur-sm">
+                    <span class="w-1.5 h-5 bg-amber-500 rounded-full mr-2 shadow-sm"></span>
+                    <h2 class="text-lg font-bold text-gray-800">美食 & 伴手禮</h2>
+                </div>
+                <div id="food-list" class="grid grid-cols-2 gap-3"></div>
+            </section>
+
+            <!-- 4. 景點與其他 -->
+            <section id="travel" class="tab-content">
+                <div class="flex items-center mb-3 px-1 sticky top-[180px] z-30 py-2 bg-gray-50/95 backdrop-blur-sm">
+                    <span class="w-1.5 h-5 bg-emerald-500 rounded-full mr-2 shadow-sm"></span>
+                    <h2 class="text-lg font-bold text-gray-800">景點 & 雜貨</h2>
+                </div>
+                <div id="travel-list" class="grid grid-cols-2 gap-3"></div>
+            </section>
+
+            <!-- 無搜尋結果提示 -->
+            <div id="no-results" class="hidden flex flex-col items-center justify-center py-20 text-gray-400">
+                <div class="bg-gray-100 p-6 rounded-full mb-4">
+                    <i class="fa-solid fa-box-open text-4xl text-gray-300"></i>
+                </div>
+                <p class="text-sm font-medium">找不到相關商品</p>
+                <p class="text-xs mt-1">試著切換地點或清除搜尋關鍵字</p>
+                <button onclick="resetFilters()" class="mt-6 px-6 py-2 bg-pink-500 text-white rounded-full text-sm font-bold shadow-md hover:bg-pink-600 transition">重置所有篩選</button>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 底部導航欄 -->
+    <nav class="bottom-nav">
+        <div class="max-w-md mx-auto flex justify-between items-center px-6 py-2">
+            <button onclick="switchTab('beauty')" class="nav-item active flex flex-col items-center w-1/4 py-1 group" data-tab="beauty">
+                <i class="fa-solid fa-wand-magic-sparkles text-xl mb-1 group-active:scale-90 transition-transform"></i>
+                <span class="text-[10px] font-bold">美妝藥妝</span>
+            </button>
+            <button onclick="switchTab('fashion')" class="nav-item flex flex-col items-center w-1/4 py-1 group" data-tab="fashion">
+                <i class="fa-solid fa-shirt text-xl mb-1 group-active:scale-90 transition-transform"></i>
+                <span class="text-[10px] font-bold">服飾穿搭</span>
+            </button>
+            <button onclick="switchTab('food')" class="nav-item flex flex-col items-center w-1/4 py-1 group" data-tab="food">
+                <i class="fa-solid fa-cookie-bite text-xl mb-1 group-active:scale-90 transition-transform"></i>
+                <span class="text-[10px] font-bold">美食伴手禮</span>
+            </button>
+            <button onclick="switchTab('travel')" class="nav-item flex flex-col items-center w-1/4 py-1 group" data-tab="travel">
+                <i class="fa-solid fa-torii-gate text-xl mb-1 group-active:scale-90 transition-transform"></i>
+                <span class="text-[10px] font-bold">景點雜貨</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Modal 詳情彈窗 -->
+    <div id="modal" class="fixed inset-0 z-[60] hidden" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onclick="closeModal()"></div>
+        <div class="fixed inset-0 flex items-center justify-center p-4 pointer-events-none">
+            <div class="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl transform transition-all scale-95 opacity-0 pointer-events-auto flex flex-col max-h-[85vh]" id="modal-panel">
+                <div class="relative h-64 shrink-0 bg-gray-100">
+                    <img id="modal-img" src="" alt="" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+                    <button onclick="closeModal()" class="absolute top-4 right-4 bg-white/20 hover:bg-white/40 text-white rounded-full p-2 w-9 h-9 flex items-center justify-center backdrop-blur-md border border-white/30">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                    <div class="absolute bottom-0 left-0 right-0 p-5">
+                        <div id="modal-tags" class="flex flex-wrap gap-2 mb-2"></div>
+                        <h3 id="modal-title" class="text-2xl font-bold text-white leading-snug shadow-sm"></h3>
+                    </div>
+                </div>
+                <div class="p-6 overflow-y-auto">
+                    <div class="flex items-center mb-4">
+                        <span id="modal-location" class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-gray-100 text-gray-700 mr-2 border border-gray-200">
+                            <i class="fa-solid fa-location-dot mr-1.5 text-pink-500"></i> <span id="modal-location-text"></span>
+                        </span>
+                        <span id="modal-category-badge" class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold"></span>
+                    </div>
+                    <p id="modal-desc" class="text-gray-600 text-base leading-relaxed mb-8"></p>
+                    <button class="w-full bg-gray-900 text-white py-3.5 rounded-xl text-sm font-bold shadow-lg hover:bg-gray-800 active:scale-[0.98] transition flex items-center justify-center gap-2" onclick="closeModal()">
+                        <i class="fa-solid fa-check"></i> 標記為已買 / 已去
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. 資料庫 (完整收錄 100+ 項目) ---
+        // loc: drugstore(藥妝), cvs(超商), tokyo_st(東京站), ginza(銀座), shibuya(澀谷), ueno(上野), airport(機場), dept(百貨), other(其他)
+        const items = [
+            // === 美妝藥妝 (Beauty) ===
+            { category: 'beauty', loc: 'drugstore', title: '第一三共牙膏 (紅色-全效)', desc: '【Clean Dental】經典款！針對牙齦腫脹、出血及牙周病預防。味道帶鹹味。', tags: ['牙膏', '必買'], img: 'https://placehold.co/600x400/DC2626/ffffff?text=Clean+Dental+Red' },
+            { category: 'beauty', loc: 'drugstore', title: '第一三共牙膏 (綠色-敏感)', desc: '【Clean Dental】敏感性牙齒專用，溫和護理，防冷熱酸痛刺激。', tags: ['牙膏', '敏感肌'], img: 'https://placehold.co/600x400/10B981/ffffff?text=Clean+Dental+Green' },
+            { category: 'beauty', loc: 'drugstore', title: '第一三共牙膏 (黃色-口臭)', desc: '【Clean Dental】檸檬清香，針對口臭護理與牙菌斑防護。', tags: ['牙膏', '口氣'], img: 'https://placehold.co/600x400/FBBF24/ffffff?text=Clean+Dental+Yellow' },
+            { category: 'beauty', loc: 'drugstore', title: '第一三共牙膏 (粉色-美白)', desc: '【Clean Dental】針對去除牙漬、咖啡漬、茶漬，美白牙齒。', tags: ['牙膏', '美白'], img: 'https://placehold.co/600x400/EC4899/ffffff?text=Clean+Dental+Pink' },
+            { category: 'beauty', loc: 'drugstore', title: '第一三共牙膏 (藍色-無研磨)', desc: '【Clean Dental】凝膠狀無研磨劑，減少磨損，適合電動牙刷。', tags: ['牙膏', '護理'], img: 'https://placehold.co/600x400/3B82F6/ffffff?text=Clean+Dental+Blue' },
+            { category: 'beauty', loc: 'drugstore', title: '第一三共 牙周病軟膏', desc: '紅色管狀，直接塗抹在紅腫牙齦上，舒緩疼痛出血。', tags: ['藥品', '牙齦'], img: 'https://placehold.co/600x400/DC2626/ffffff?text=Gum+Ointment' },
+            { category: 'beauty', loc: 'drugstore', title: '齒磨堂牙膏 (白色-極致淨白)', desc: '【Hamigaki Do】含兩倍美白成分，溫和去除牙漬。', tags: ['牙膏', '職人'], img: 'https://placehold.co/600x400/E5E7EB/000000?text=Hamigaki+White' },
+            { category: 'beauty', loc: 'drugstore', title: '齒磨堂牙膏 (綠色-去垢)', desc: '含5種藥用成分，對應口臭、牙齦。吃大蒜後刷超有效。', tags: ['牙膏', '口氣'], img: 'https://placehold.co/600x400/059669/ffffff?text=Hamigaki+Green' },
+            { category: 'beauty', loc: 'drugstore', title: '齒磨堂牙膏 (紫色-璀璨淨白)', desc: '含3倍美白成分，針對重度茶漬咖啡漬。', tags: ['牙膏', '美白'], img: 'https://placehold.co/600x400/7C3AED/ffffff?text=Hamigaki+Purple' },
+            { category: 'beauty', loc: 'drugstore', title: '小林製藥 扁桃腺噴霧', desc: '【Harenasu】喉嚨痛救星！吞嚥困難時直接噴患部，涼感速效。', tags: ['藥品', '喉嚨'], img: 'https://placehold.co/600x400/F43F5E/ffffff?text=Throat+Spray' },
+            { category: 'beauty', loc: 'drugstore', title: 'Kowa 鼻炎膠捲', desc: '放在舌上融化的藍色薄膜，快速停止流鼻水神器。', tags: ['藥品', '鼻炎'], img: 'https://placehold.co/600x400/3B82F6/ffffff?text=Kowa+Film' },
+            { category: 'beauty', loc: 'drugstore', title: 'Zukkinon 頭痛藥膏', desc: '塗抹式藥膏，專治肩頸僵硬引起的頭痛。', tags: ['藥品', '痠痛'], img: 'https://placehold.co/600x400/F59E0B/ffffff?text=Zukkinon' },
+            { category: 'beauty', loc: 'drugstore', title: '腳後跟保濕護理襪', desc: '【Kakato-chan】睡覺穿著，含保濕成分，改善腳跟乾裂。', tags: ['保養', '足部'], img: 'https://placehold.co/600x400/EC4899/ffffff?text=Heel+Care' },
+            { category: 'beauty', loc: 'drugstore', title: 'Quality 1st 眼膜 (紅)', desc: '紅色包裝 Retinol，針對眼周細紋、黑眼圈，緊緻效果好。', tags: ['面膜', '抗老'], img: 'https://placehold.co/600x400/EAB308/ffffff?text=Quality+1st' },
+            { category: 'beauty', loc: 'drugstore', title: 'PDC 酒粕面膜', desc: '洗掉後皮膚像豆腐一樣嫩滑，去黃提亮效果驚人。', tags: ['面膜', '美白'], img: 'https://placehold.co/600x400/BE123C/ffffff?text=Sake+Mask' },
+            { category: 'beauty', loc: 'drugstore', title: '毛穴小町 面膜', desc: '綠色包裝，針對毛孔粗大、角質護理。', tags: ['面膜', '毛孔'], img: 'https://placehold.co/600x400/059669/ffffff?text=Pore+Mask' },
+            { category: 'beauty', loc: 'drugstore', title: '怡麗絲爾 晚安凍膜', desc: 'ELIXIR Sleeping Mask，睡前塗抹，針對毛孔粗大。', tags: ['保養', '毛孔'], img: 'https://placehold.co/600x400/F59E0B/ffffff?text=ELIXIR+Mask' },
+            { category: 'beauty', loc: 'drugstore', title: 'IHADA 藥用乳液', desc: '高精製凡士林配合，保濕修復力強，敏感肌推。', tags: ['保養', '敏感肌'], img: 'https://placehold.co/600x400/3B82F6/ffffff?text=IHADA' },
+            { category: 'beauty', loc: 'drugstore', title: 'CEZANNE 藍色飾底乳', desc: '05號藍色款，提亮效果比舊款更清透，改善暗沉。', tags: ['彩妝', '平價'], img: 'https://placehold.co/600x400/60A5FA/ffffff?text=CEZANNE+Blue' },
+            { category: 'beauty', loc: 'drugstore', title: 'Excel 精華遮瑕液', desc: '質地滋潤不卡紋，02號色好用。', tags: ['彩妝', '遮瑕'], img: 'https://placehold.co/600x400/FBBF24/ffffff?text=Excel' },
+            { category: 'beauty', loc: 'drugstore', title: 'Biore 補妝吸油面紙', desc: '紫色/紅色包裝，吸油同時補妝，按壓後妝容服貼。', tags: ['工具', '補妝'], img: 'https://placehold.co/600x400/1E40AF/ffffff?text=Biore+Sheet' },
+            { category: 'beauty', loc: 'drugstore', title: 'Wrinkle Double 精華棒', desc: '粉色棒狀，針對眼下細紋、黑眼圈，帶妝可用。', tags: ['保養', '急救'], img: 'https://placehold.co/600x400/FDA4AF/ffffff?text=Wrinkle+Stick' },
+            { category: 'beauty', loc: 'drugstore', title: 'Sofina iP 去黑頭凝膠', desc: '黑色軟管，洗完臉後針對黑頭粉刺按摩。', tags: ['保養', '黑頭'], img: 'https://placehold.co/600x400/1F2937/ffffff?text=Sofina+Pore' },
+            { category: 'beauty', loc: 'cvs', title: 'MINTIA Breeze 薄荷糖', desc: '大顆粒版本，藍色清涼、粉色水蜜桃、黃色檸檬。', tags: ['零食', '口氣'], img: 'https://placehold.co/600x400/3B82F6/ffffff?text=MINTIA' },
+            { category: 'beauty', loc: 'drugstore', title: '小林製藥 口氣清新丸', desc: 'Breath Care，吞服型，從胃部去除食物異味。', tags: ['藥品', '口氣'], img: 'https://placehold.co/600x400/10B981/ffffff?text=Breath+Care' },
+            { category: 'beauty', loc: 'drugstore', title: 'UHA味覺糖 保健食品', desc: '軟糖形式。鐵&葉酸(紫包)、維他命C(黃包)。', tags: ['保健', '軟糖'], img: 'https://placehold.co/600x400/F59E0B/ffffff?text=Supplements' },
+            { category: 'beauty', loc: 'drugstore', title: 'Svelty 分解酵母', desc: 'Pakkun 酵母，吃大餐前吃，幫助分解澱粉糖分。', tags: ['保健', '瘦身'], img: 'https://placehold.co/600x400/D97706/ffffff?text=Svelty' },
+            { category: 'beauty', loc: 'drugstore', title: '濃密極細毛牙刷', desc: '刷毛如雲朵般柔軟，深入齒縫，觸感超神奇。', tags: ['工具', '牙刷'], img: 'https://placehold.co/600x400/94A3B8/ffffff?text=Soft+Toothbrush' },
+            { category: 'beauty', loc: 'drugstore', title: 'CANMAKE 心形蜜粉', desc: '限定壓紋款，粉色提氣色，藍色提亮。外殼可愛。', tags: ['彩妝', '限定'], img: 'https://placehold.co/600x400/F472B6/ffffff?text=CANMAKE' },
+            { category: 'beauty', loc: 'ginza', title: 'ReFa 銀座店', desc: '【ReFa銀座精品店】新品捲髮棒、直髮夾、愛心梳（銀座限定色）。', tags: ['美髮', '銀座'], img: 'https://placehold.co/600x400/6366F1/ffffff?text=ReFa+Ginza' },
+            { category: 'beauty', loc: 'shibuya', title: 'SHIRO 香氛', desc: '【澀谷Scramble Square】白百合髮油、柚子保濕噴霧、皂香身體乳。', tags: ['香氛', '美髮'], img: 'https://placehold.co/600x400/F3F4F6/ffffff?text=SHIRO' },
+            { category: 'beauty', loc: 'drugstore', title: '&honey 瀏海定型棒', desc: '整理碎髮神器，不會讓頭髮變硬條狀。', tags: ['美髮', '定型'], img: 'https://placehold.co/600x400/FCD34D/ffffff?text=Honey+Stick' },
+            { category: 'beauty', loc: 'drugstore', title: 'KissMe 睫毛卸除液', desc: '淺藍色管身，輕鬆卸除強力防水睫毛膏。', tags: ['彩妝', '卸妝'], img: 'https://placehold.co/600x400/60A5FA/ffffff?text=Mascara+Remover' },
+            { category: 'beauty', loc: 'drugstore', title: 'Kanebo 洗顏皂霜', desc: 'Comfort Stretchy Wash，黑色軟管，牽絲質地。', tags: ['洗臉', '保濕'], img: 'https://placehold.co/600x400/1F2937/ffffff?text=Kanebo' },
+            { category: 'beauty', loc: 'ueno', title: 'Yoroshi 化妝堂', desc: '【淺草仲見世通】必買護髮油、護手霜，365種生日花紋包裝。', tags: ['保養', '淺草'], img: 'https://placehold.co/600x400/D97706/ffffff?text=Yoroshi' },
+
+            // === 服飾穿搭 (Fashion) ===
+            { category: 'fashion', loc: 'shibuya', title: 'Mont-bell 羽絨圍巾', desc: '【澀谷店】輕量保暖，收納方便，冬季必備單品。', tags: ['配件', '保暖'], img: 'https://placehold.co/600x400/4B5563/ffffff?text=Down+Muffler' },
+            { category: 'fashion', loc: 'shibuya', title: 'Mont-bell 圓領羽絨衣', desc: '【澀谷店】可當內搭的中層羽絨衣，輕薄保暖。', tags: ['外套', '必買'], img: 'https://placehold.co/600x400/374151/ffffff?text=Down+Jacket' },
+            { category: 'fashion', loc: 'ginza', title: 'COCA 平價服飾', desc: '【銀座/新宿】風格清新自然，質感不錯，價格平易近人。', tags: ['女裝', '平價'], img: 'https://placehold.co/600x400/9CA3AF/ffffff?text=COCA' },
+            { category: 'fashion', loc: 'shibuya', title: 'CITEN 金屬色包包', desc: '【United Arrows】副牌，金屬色雲朵包、扭蛋環保袋。', tags: ['包包', '潮牌'], img: 'https://placehold.co/600x400/A855F7/ffffff?text=CITEN' },
+            { category: 'fashion', loc: 'ginza', title: 'Onitsuka Tiger', desc: '【銀座/新宿】鬼塚虎，銀座店款式多，可能有特殊款。', tags: ['鞋子', '退稅'], img: 'https://placehold.co/600x400/F59E0B/ffffff?text=Onitsuka' },
+            { category: 'fashion', loc: 'shibuya', title: 'Stussy 東京限定', desc: '【澀谷/原宿】東京限定款 Hoodie 和 T-shirt，經常補貨。', tags: ['潮牌', '限定'], img: 'https://placehold.co/600x400/1F2937/ffffff?text=Stussy' },
+            { category: 'fashion', loc: 'ginza', title: 'GAP 寵物客製衣', desc: '【銀座旗艦店】可以刺繡寵物名字的 GAP 帽T，非常有紀念價值。', tags: ['寵物', '客製'], img: 'https://placehold.co/600x400/2563EB/ffffff?text=GAP+Pet' },
+            { category: 'fashion', loc: 'drugstore', title: 'ATSUGI 發熱絲襪', desc: '超薄發熱，冬天穿裙子必備，迪士尼抗寒神物。', tags: ['襪子', '保暖'], img: 'https://placehold.co/600x400/FB923C/ffffff?text=ATSUGI' },
+            { category: 'fashion', loc: 'drugstore', title: '光腿神器 (80丹)', desc: '80丹保暖假透肉，適合0-10度，自然不假白。', tags: ['襪子', '保暖'], img: 'https://placehold.co/600x400/FCA5A5/ffffff?text=Tights' },
+            { category: 'fashion', loc: 'dept', title: 'Gelato Pique 睡衣', desc: '【Lumine/Parco】觸感超柔軟的家居服，日本買便宜很多。', tags: ['家居', '睡衣'], img: 'https://placehold.co/600x400/FBCFE8/ffffff?text=Gelato+Pique' },
+            { category: 'fashion', loc: 'other', title: 'Niko and... 花花毛衣', desc: '【原宿旗艦店】大花朵圖案毛衣，可愛復古風。', tags: ['女裝', '穿搭'], img: 'https://placehold.co/600x400/1F2937/ffffff?text=Niko+And' },
+            { category: 'fashion', loc: 'dept', title: 'Princesse tam.tam', desc: '【Uniqlo銀座/百貨】Uniqlo姊妹牌，有花邊的發熱衣，可當內搭露出。', tags: ['內衣', '發熱衣'], img: 'https://placehold.co/600x400/E5E7EB/000000?text=Tam+Tam' },
+
+            // === 美食伴手禮 (Food) ===
+            { category: 'food', loc: 'tokyo_st', title: 'NewYork Perfect Cheese', desc: '【東京車站 1F 南通路】東京車站必買，起司奶油脆餅，鹹甜交織大人味。', tags: ['伴手禮', '起司'], img: 'https://placehold.co/600x400/F59E0B/ffffff?text=NY+Perfect+Cheese' },
+            { category: 'food', loc: 'tokyo_st', title: 'COCORIS 榛果夾心', desc: '【東京車站 1F Gransta】榛果與木莓夾心餅乾，包裝精緻。', tags: ['伴手禮', '榛果'], img: 'https://placehold.co/600x400/78350F/ffffff?text=COCORIS' },
+            { category: 'food', loc: 'tokyo_st', title: 'N.Y.C. SAND 焦糖餅', desc: '【大丸東京店 1F】咬下會爆漿的奢華流心焦糖巧克力餅乾，排隊名店。', tags: ['伴手禮', '焦糖'], img: 'https://placehold.co/600x400/92400E/ffffff?text=NYC+SAND' },
+            { category: 'food', loc: 'tokyo_st', title: 'Butter Butler', desc: '【東京車站/新宿站】奶油費南雪，外酥內濕潤，奶油香氣十足。', tags: ['伴手禮', '費南雪'], img: 'https://placehold.co/600x400/FBBF24/ffffff?text=Butter+Butler' },
+            { category: 'food', loc: 'tokyo_st', title: 'BRULEE MERIZE', desc: '【東京車站 1F 八重洲北口】焦糖烤布蕾塔，東京車站新寵，表面炙燒焦糖脆皮。', tags: ['伴手禮', '布蕾'], img: 'https://placehold.co/600x400/D97706/ffffff?text=BRULEE' },
+            { category: 'food', loc: 'cvs', title: 'Sugar Butter Tree x Lisa', desc: '【7-11/百貨】麗莎卡斯柏聯名、史努比聯名款。', tags: ['伴手禮', '聯名'], img: 'https://placehold.co/600x400/3B82F6/ffffff?text=Sugar+Butter' },
+            { category: 'food', loc: 'tokyo_st', title: 'Very Ruby Cut', desc: '【品川站/東京站】紅寶石草莓果醬夾心餅乾，像寶石一樣的精緻甜點。', tags: ['伴手禮', '草莓'], img: 'https://placehold.co/600x400/E11D48/ffffff?text=Very+Ruby' },
+            { category: 'food', loc: 'dept', title: 'Butter State\'s', desc: '【大丸東京/西武池袋】火山造型的奶油餅乾，濃濃奶油和可可香氣。', tags: ['甜點', '限定'], img: 'https://placehold.co/600x400/78350F/ffffff?text=Butter+States' },
+            { category: 'food', loc: 'ginza', title: 'Noix de Beurre', desc: '【銀座三越 B2/新宿伊勢丹 B1】現烤費南雪，外酥內濕潤，排隊名店。', tags: ['伴手禮', '費南雪'], img: 'https://placehold.co/600x400/D97706/ffffff?text=Noix+de+Beurre' },
+            { category: 'food', loc: 'shibuya', title: 'Echire 艾許奶油', desc: '【澀谷Scramble Square/丸之內】奶油界的LV，費南雪和瑪德蓮超級香。', tags: ['伴手禮', '高級'], img: 'https://placehold.co/600x400/2563EB/ffffff?text=Echire' },
+            { category: 'food', loc: 'dept', title: 'Audrey 草莓花束', desc: '【日本橋高島屋/池袋西武】Hello Berry，外型像花束，草莓乾配奶油。', tags: ['伴手禮', '顏值'], img: 'https://placehold.co/600x400/F43F5E/ffffff?text=Audrey' },
+            { category: 'food', loc: 'tokyo_st', title: 'Pista & Tokyo', desc: '【東京車站 1F】開心果夾心餅乾，薄脆口感，開心果控必買。', tags: ['伴手禮', '開心果'], img: 'https://placehold.co/600x400/84CC16/ffffff?text=Pista+Tokyo' },
+            { category: 'food', loc: 'other', title: 'Press Butter Sand', desc: '【成田機場/東京車站】焦糖奶油夾心，推薦原味和伯爵茶口味。', tags: ['伴手禮', '餅乾'], img: 'https://placehold.co/600x400/D97706/ffffff?text=Butter+Sand' },
+            { category: 'food', loc: 'shibuya', title: 'Number Sugar', desc: '【表參道】手工牛奶糖，數字代表不同口味。', tags: ['甜點', '牛奶糖'], img: 'https://placehold.co/600x400/F3F4F6/000000?text=Number+Sugar' },
+            { category: 'food', loc: 'dept', title: 'Henri Charpentier', desc: '【銀座本店/新宿伊勢丹】金氏世界紀錄銷量第一的費南雪。', tags: ['伴手禮', '費南雪'], img: 'https://placehold.co/600x400/D97706/ffffff?text=Henri+C' },
+            { category: 'food', loc: 'cvs', title: '7-11 藍莓馬卡龍冰', desc: '超商神級甜點，馬卡龍夾藍莓冰淇淋。', tags: ['超商', '冰品'], img: 'https://placehold.co/600x400/8B5CF6/ffffff?text=7-11+Macaron' },
+            { category: 'food', loc: 'cvs', title: '7-11 焦糖胡桃巧克力', desc: 'Pecan Nut Chocolate，胡桃外裹巧克力。', tags: ['超商', '巧克力'], img: 'https://placehold.co/600x400/78350F/ffffff?text=Pecan+Choco' },
+            { category: 'food', loc: 'cvs', title: '7-11 生巧克力冰淇淋', desc: '方塊狀的生巧克力冰淇淋，濃郁好吃。', tags: ['超商', '冰品'], img: 'https://placehold.co/600x400/5B21B6/ffffff?text=Raw+Choco+Ice' },
+            { category: 'food', loc: 'cvs', title: '7-11 麝香葡萄軟糖巧', desc: '包著軟糖的巧克力球，麝香葡萄口味。', tags: ['超商', '巧克力'], img: 'https://placehold.co/600x400/84CC16/ffffff?text=Muscat+Choco' },
+            { category: 'food', loc: 'cvs', title: '7-11 帶皮薯條', desc: '藍色包裝，口感酥脆的帶皮薯條餅乾。', tags: ['超商', '零食'], img: 'https://placehold.co/600x400/1E3A8A/ffffff?text=Potato+Wedges' },
+            { category: 'food', loc: 'cvs', title: 'QBB 草莓起司球', desc: '像甜點一樣的起司，草莓口味，適合當小點心。', tags: ['超商', '起司'], img: 'https://placehold.co/600x400/F43F5E/ffffff?text=QBB+Cheese' },
+            { category: 'food', loc: 'other', title: 'Shake Shack 焙茶奶昔', desc: '【有樂町/外苑前】日本/東京限定口味，Roasted Green Tea Shake。', tags: ['美食', '飲料'], img: 'https://placehold.co/600x400/10B981/ffffff?text=Shake+Shack' },
+            { category: 'food', loc: 'ginza', title: '五代目 花山烏龍麵', desc: '【銀座店】超寬「鬼寬烏龍麵」，口感Q彈。', tags: ['美食', '烏龍麵'], img: 'https://placehold.co/600x400/F59E0B/ffffff?text=Hanayama+Udon' },
+            { category: 'food', loc: 'ueno', title: '上野 山家炸豬排', desc: '【上野/御徒町】阿美橫町高CP值美食，肉厚多汁。', tags: ['美食', '豬排'], img: 'https://placehold.co/600x400/D97706/ffffff?text=Tonkatsu' },
+            { category: 'food', loc: 'ueno', title: '淺草 炸牛排', desc: '【淺草雷門】牛カツ，外酥內嫩，可自己在石板上煎熟度。', tags: ['美食', '牛肉'], img: 'https://placehold.co/600x400/EF4444/ffffff?text=Gyukatsu' },
+            { category: 'food', loc: 'shibuya', title: '月島文字燒', desc: '【澀谷Scramble Square】明太子麻糬文字燒是必點。', tags: ['美食', '文字燒'], img: 'https://placehold.co/600x400/F97316/ffffff?text=Monjayaki' },
+            { category: 'food', loc: 'airport', title: '利久牛舌 (成田)', desc: '【成田機場 T3/T2】離開日本前最後必吃。', tags: ['美食', '牛舌'], img: 'https://placehold.co/600x400/B91C1C/ffffff?text=Rikyu' },
+            { category: 'food', loc: 'other', title: 'Yellow Cafe', desc: '【池袋】漢堡排蛋包飯，醬汁濃郁。', tags: ['美食', '早午餐'], img: 'https://placehold.co/600x400/FCD34D/ffffff?text=Yellow+Cafe' },
+            { category: 'food', loc: 'other', title: 'BLANCA 可麗餅', desc: '【麻布台之丘】餅皮有濃濃焦糖味，Ricotta 內餡。', tags: ['美食', '甜點'], img: 'https://placehold.co/600x400/A855F7/ffffff?text=BLANCA+Crepe' },
+            { category: 'food', loc: 'cvs', title: '森永 BifiDus 優格', desc: '「炸屎神器」，整腸效果強，比 R1 更有感。', tags: ['超商', '優格'], img: 'https://placehold.co/600x400/3B82F6/ffffff?text=Morinaga+Yogurt' },
+            { category: 'food', loc: 'cvs', title: 'Kirin 午後紅茶 (白)', desc: 'The Creamy Tea，特濃奶茶。', tags: ['超商', '飲料'], img: 'https://placehold.co/600x400/E5E7EB/ffffff?text=Creamy+Tea' },
+            { category: 'food', loc: 'cvs', title: '高千穗牧場 和紅茶', desc: '好喝的紅茶拿鐵，奶香濃郁。', tags: ['超商', '飲料'], img: 'https://placehold.co/600x400/E5E7EB/ffffff?text=Tea+Au+Lait' },
+            { category: 'food', loc: 'ginza', title: '銀座あけぼの 草莓大福', desc: '【銀座本店】整顆大草莓，紅豆餡甜而不膩。', tags: ['甜點', '大福'], img: 'https://placehold.co/600x400/F43F5E/ffffff?text=Strawberry+Daifuku' },
+            { category: 'food', loc: 'airport', title: 'Royce 巧克力', desc: '【機場免稅店】開心果/抹茶巧克力棒，機場必買。', tags: ['伴手禮', '巧克力'], img: 'https://placehold.co/600x400/84CC16/ffffff?text=Royce' },
+            { category: 'food', loc: 'cvs', title: 'Kurakon 鹽昆布', desc: '部長包裝，配飯、炒菜、拌小黃瓜都好吃。', tags: ['超市', '料理'], img: 'https://placehold.co/600x400/3B82F6/ffffff?text=Salt+Kombu' },
+            { category: 'food', loc: 'ueno', title: 'Milk Shop Luck', desc: '【秋葉原站 總武線月台】大山乳業咖啡牛奶。', tags: ['美食', '飲料'], img: 'https://placehold.co/600x400/3B82F6/ffffff?text=Milk+Shop' },
+            { category: 'food', loc: 'ueno', title: '淺草 梅乾', desc: '【淺草仲見世通】木村拓哉也推薦的店，酸甜適中。', tags: ['伴手禮', '梅乾'], img: 'https://placehold.co/600x400/BE123C/ffffff?text=Dried+Plum' },
+            { category: 'food', loc: 'cvs', title: 'Kabaya TOUGH 軟糖', desc: '口感超Q彈，水果口味濃厚。', tags: ['零食', '軟糖'], img: 'https://placehold.co/600x400/F59E0B/ffffff?text=Tough+Gummy' },
+            { category: 'food', loc: 'cvs', title: '明治 Galbo x Meltykiss', desc: '2025秋冬限定焦糖口味，濃郁幸福感。', tags: ['零食', '巧克力'], img: 'https://placehold.co/600x400/EA580C/ffffff?text=Meltykiss' },
+            { category: 'food', loc: 'cvs', title: '東丸 牡蠣醬油', desc: '煮菜神器，加一點就很鮮美。', tags: ['超市', '調味'], img: 'https://placehold.co/600x400/78350F/ffffff?text=Oyster+Sauce' },
+            { category: 'food', loc: 'cvs', title: 'Horinishi 戶外香料', desc: '烤肉神器，萬用調味粉。', tags: ['超市', '調味'], img: 'https://placehold.co/600x400/000000/ffffff?text=Horinishi' },
+            { category: 'food', loc: 'cvs', title: 'Donki 減鹽味噌湯', desc: '【唐吉訶德】12食入的大包裝，便宜好喝，還有海帶湯。', tags: ['超市', '湯品'], img: 'https://placehold.co/600x400/EF4444/ffffff?text=Miso+Soup' },
+            { category: 'food', loc: 'cvs', title: 'Acecook 蛤蜊鹽味拉麵', desc: '湯頭鮮美，滿滿的蛤蜊鮮味。', tags: ['超商', '泡麵'], img: 'https://placehold.co/600x400/FCD34D/ffffff?text=Clam+Ramen' },
+            { category: 'food', loc: 'dept', title: 'LeTAO 雙層乳酪蛋糕', desc: '【百貨北海道展/機場】北海道必吃，入口即化，也有麝香葡萄口味。', tags: ['甜點', '蛋糕'], img: 'https://placehold.co/600x400/FEF08A/ffffff?text=LeTAO' },
+            { category: 'food', loc: 'dept', title: '治一郎 布丁', desc: '【大丸東京/品川Ecute】大人系焦糖超濃布丁，口感綿密。', tags: ['甜點', '布丁'], img: 'https://placehold.co/600x400/F59E0B/ffffff?text=Jiichiro' },
+            { category: 'food', loc: 'other', title: 'Dolce Tacubo', desc: '【代官山】米其林一星餐廳甜點店，費南雪超好吃。', tags: ['美食', '費南雪'], img: 'https://placehold.co/600x400/78350F/ffffff?text=Tacubo' },
+
+            // === 景點與其他 (Travel) ===
+            { category: 'travel', loc: 'other', title: '麻布台之丘 聖誕市集', desc: '夢幻小木屋和燈飾，可拍東京鐵塔。', tags: ['景點', '聖誕'], img: 'https://placehold.co/600x400/D97706/ffffff?text=Azabudai+Hills' },
+            { category: 'travel', loc: 'other', title: '六本木 櫸坂點燈', desc: 'Keyakizaka，藍白燈海配東京鐵塔。', tags: ['景點', '夜景'], img: 'https://placehold.co/600x400/1E3A8A/ffffff?text=Roppongi+Lights' },
+            { category: 'travel', loc: 'other', title: '東京中城 聖誕燈飾', desc: 'Midtown，有噴雪花和泡泡的夢幻造景。', tags: ['景點', '夜景'], img: 'https://placehold.co/600x400/3B82F6/ffffff?text=Midtown' },
+            { category: 'travel', loc: 'tokyo_st', title: 'KITTE 丸之內', desc: '6樓頂樓免費觀景台，可拍東京車站全景。', tags: ['景點', '夜景'], img: 'https://placehold.co/600x400/111827/ffffff?text=KITTE+View' },
+            { category: 'travel', loc: 'tokyo_st', title: '丸之內大樓', desc: '5F露台和35F觀景台，免費拍攝東京車站夜景。', tags: ['景點', '夜景'], img: 'https://placehold.co/600x400/000000/ffffff?text=Marunouchi' },
+            { category: 'travel', loc: 'other', title: '惠比壽花園廣場 38F', desc: '免費觀景台，人少安靜，可拍鐵塔。', tags: ['景點', '夜景'], img: 'https://placehold.co/600x400/4C1D95/ffffff?text=Ebisu+38F' },
+            { category: 'travel', loc: 'ueno', title: 'Sanrio Gift Gate 淺草', desc: '【淺草雷門旁】淺草有大Kitty，原宿店可以客製化刺繡。', tags: ['購物', '三麗鷗'], img: 'https://placehold.co/600x400/F472B6/ffffff?text=Sanrio' },
+            { category: 'travel', loc: 'ueno', title: '今戶神社 (招財貓)', desc: '招財貓發源地，求姻緣超靈驗。', tags: ['神社', '淺草'], img: 'https://placehold.co/600x400/EF4444/ffffff?text=Imado+Shrine' },
+            { category: 'travel', loc: 'other', title: '川越/鎌倉 神社巡禮', desc: '川越冰川、明治神宮、小網神社、豪德寺、鎌倉大佛。', tags: ['神社', '攻略'], img: 'https://placehold.co/600x400/10B981/ffffff?text=Shrine+Tour' },
+            { category: 'travel', loc: 'other', title: '無印良品 梳子清潔刷', desc: '輕鬆清理梳子上纏繞的頭髮，實用小物。', tags: ['生活', '無印'], img: 'https://placehold.co/600x400/713F12/ffffff?text=Muji+Brush+Cleaner' },
+            { category: 'travel', loc: 'other', title: '無印良品 乾洗髮濕紙巾', desc: '夏天或流汗時超好用，擦完頭髮瞬間蓬鬆。', tags: ['生活', '無印'], img: 'https://placehold.co/600x400/D1D5DB/ffffff?text=Dry+Shampoo' },
+            { category: 'travel', loc: 'other', title: 'Loft 富士山橡皮擦', desc: '擦著擦著會變成富士山形狀。', tags: ['文具', '伴手禮'], img: 'https://placehold.co/600x400/3B82F6/ffffff?text=Fuji+Eraser' },
+            { category: 'travel', loc: 'other', title: 'Petemo 寵物店 (品川)', desc: '【AEON品川店】推薦「無臭換便袋」，完全聞不到味道。', tags: ['寵物', '必買'], img: 'https://placehold.co/600x400/059669/ffffff?text=Petemo' },
+            { category: 'travel', loc: 'other', title: 'Petio 寵物電暖板', desc: '雙面不同溫度，日本製，冬天毛小孩保暖。', tags: ['寵物', '電器'], img: 'https://placehold.co/600x400/F97316/ffffff?text=Pet+Heater' },
+            { category: 'travel', loc: 'other', title: '3COINS 微波料理盒', desc: '可微波的平底鍋造型，煎牛排、炒菜無油煙。', tags: ['生活', '廚具'], img: 'https://placehold.co/600x400/FCD34D/ffffff?text=3COINS' },
+            { category: 'travel', loc: 'other', title: '3COINS 包包扣環', desc: '解放雙手！可以扣外套在包包上的好物。', tags: ['生活', '小物'], img: 'https://placehold.co/600x400/14B8A6/ffffff?text=Bag+Holder' },
+            { category: 'travel', loc: 'ueno', title: '上野到淺草 散步路線', desc: '途經稻荷町、合羽橋道具街，好吃的麵包店。', tags: ['行程', '散步'], img: 'https://placehold.co/600x400/F59E0B/ffffff?text=Ueno+Walk' },
+            { category: 'travel', loc: 'other', title: '大猩猩腿部按摩器', desc: 'Gorilla no Hitotsukami，強力氣壓按摩小腿。', tags: ['電器', '按摩'], img: 'https://placehold.co/600x400/A855F7/ffffff?text=Gorilla+Massage' }
+        ];
+
+        let currentLocation = 'all';
+        let currentSearch = '';
+
+        // 渲染邏輯
+        function renderItems() {
+            const categories = ['beauty', 'fashion', 'food', 'travel'];
+            const categoryNames = {'beauty': '美妝藥妝', 'fashion': '服飾穿搭', 'food': '美食伴手禮', 'travel': '景點雜貨'};
+            let totalVisible = 0;
+            let hasAnyContent = false;
+
+            // 清空列表
+            categories.forEach(cat => {
+                document.getElementById(`${cat}-list`).innerHTML = '';
+            });
+
+            items.forEach((item) => {
+                // 篩選邏輯
+                const matchesLoc = currentLocation === 'all' || item.loc === currentLocation;
+                const matchesSearch = item.title.toLowerCase().includes(currentSearch) || 
+                                      item.desc.toLowerCase().includes(currentSearch) || 
+                                      item.tags.some(t => t.toLowerCase().includes(currentSearch));
+
+                if (matchesLoc && matchesSearch) {
+                    totalVisible++;
+                    const locName = getLocationName(item.loc);
+                    const catName = categoryNames[item.category];
+                    
+                    const card = `
+                        <div class="card bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100 flex flex-col h-full cursor-pointer hover:shadow-md transition-shadow"
+                             onclick="openModal('${item.title}', '${item.desc.replace(/'/g, "\\'")}', '${item.img}', '${catName}', '${locName}', '${item.tags.join(',')}')">
+                            <div class="relative overflow-hidden">
+                                <img src="${item.img}" alt="${item.title}" class="card-img" loading="lazy">
+                                <div class="absolute top-2 left-2">
+                                    <span class="location-badge">
+                                        <i class="fa-solid fa-location-dot text-[10px] text-pink-500"></i> ${locName}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="p-3 flex-1 flex flex-col">
+                                <h3 class="font-bold text-gray-800 text-sm mb-1 line-clamp-2 leading-snug">${item.title}</h3>
+                                <div class="flex flex-wrap gap-1 mt-auto pt-2">
+                                    ${item.tags.slice(0,2).map(tag => `<span class="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">#${tag}</span>`).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    document.getElementById(`${item.category}-list`).innerHTML += card;
+                }
+            });
+
+            // 更新計數與無結果顯示
+            document.getElementById('visible-count').innerText = totalVisible;
+            const noResultsEl = document.getElementById('no-results');
+            
+            // 檢查各分類是否有內容，決定是否顯示標題
+            categories.forEach(cat => {
+                const list = document.getElementById(`${cat}-list`);
+                const section = document.getElementById(cat);
+                
+                // 如果目前是 active tab 且有內容，則 hasAnyContent = true
+                // 但這裡我們希望 section 永遠存在 DOM 中，只是 display block/none
+                // 這裡的邏輯是：如果該分類有項目符合篩選，就顯示該項目。
+                // 整個 section 的顯示與否由 tab 控制，但如果 tab 內沒東西，可以顯示提示。
+                
+                // 修正邏輯：永遠不隱藏 section (除非 tab 切換)，只判斷有沒有東西
+                if (list.children.length > 0) {
+                    hasAnyContent = true;
+                }
+            });
+
+            // 只有在當前 tab 沒有任何內容時才顯示 no results
+            // 取得當前 active tab
+            const activeTabId = document.querySelector('.tab-content.active').id;
+            const activeList = document.getElementById(`${activeTabId}-list`);
+            
+            if (activeList.children.length === 0) {
+                noResultsEl.classList.remove('hidden');
+            } else {
+                noResultsEl.classList.add('hidden');
+            }
+        }
+
+        // 輔助函數
+        function getLocationName(code) {
+            const map = {
+                'drugstore': '藥妝店', 'cvs': '超商/超市', 'tokyo_st': '東京車站',
+                'ginza': '銀座', 'shibuya': '澀谷/原宿', 'ueno': '上野/淺草',
+                'airport': '機場', 'dept': '百貨公司', 'other': '其他'
+            };
+            return map[code] || '其他';
+        }
+
+        // 互動控制
+        function filterLocation(loc, btn) {
+            currentLocation = loc;
+            
+            // 更新按鈕樣式
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            if(btn) btn.classList.add('active');
+            
+            // 滾動到按鈕位置 (優化體驗)
+            btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+
+            renderItems();
+        }
+
+        function applyFilters() {
+            currentSearch = document.getElementById('search-input').value.toLowerCase();
+            const clearBtn = document.getElementById('clear-search');
+            if(currentSearch) {
+                clearBtn.classList.remove('hidden');
+            } else {
+                clearBtn.classList.add('hidden');
+            }
+            renderItems();
+        }
+
+        function resetSearch() {
+            document.getElementById('search-input').value = '';
+            applyFilters();
+        }
+
+        function resetFilters() {
+            currentLocation = 'all';
+            currentSearch = '';
+            document.getElementById('search-input').value = '';
+            document.getElementById('clear-search').classList.add('hidden');
+            
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector('.filter-btn:first-child').classList.add('active'); 
+            
+            renderItems();
+        }
+
+        function switchTab(tabId) {
+            // 1. 隱藏所有 tab 內容
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.remove('active');
+            });
+            // 2. 移除導航 active 樣式
+            document.querySelectorAll('.nav-item').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            // 3. 顯示目標 tab
+            const target = document.getElementById(tabId);
+            if (target) {
+                target.classList.add('active');
+            }
+            
+            // 4. 激活目標導航
+            const activeNav = document.querySelector(`.nav-item[data-tab="${tabId}"]`);
+            if (activeNav) {
+                activeNav.classList.add('active');
+            }
+            
+            // 5. 重新檢查是否顯示 "無結果" (針對新切換的 tab)
+            renderItems();
+
+            // 6. 滾動到頂部
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Modal
+        function openModal(title, desc, img, category, location, tags) {
+            const modal = document.getElementById('modal');
+            const panel = document.getElementById('modal-panel');
+            
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-desc').innerText = desc;
+            document.getElementById('modal-img').src = img;
+            document.getElementById('modal-category-badge').innerText = category;
+            
+            // 根據類別設定徽章顏色
+            const badge = document.getElementById('modal-category-badge');
+            if (category === '美妝藥妝') badge.className = 'inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-pink-100 text-pink-700';
+            else if (category === '服飾穿搭') badge.className = 'inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-indigo-100 text-indigo-700';
+            else if (category === '美食伴手禮') badge.className = 'inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-amber-100 text-amber-700';
+            else badge.className = 'inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-emerald-100 text-emerald-700';
+
+            document.getElementById('modal-location-text').innerText = location;
+            
+            const tagsHtml = tags.split(',').map(tag => 
+                `<span class="bg-black/30 text-white text-xs px-2 py-1 rounded backdrop-blur-md border border-white/20">#${tag}</span>`
+            ).join('');
+            document.getElementById('modal-tags').innerHTML = tagsHtml;
+
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                panel.classList.remove('opacity-0', 'scale-95');
+                panel.classList.add('scale-100');
+            }, 10);
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('modal');
+            const panel = document.getElementById('modal-panel');
+            
+            panel.classList.remove('scale-100');
+            panel.classList.add('opacity-0', 'scale-95');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.body.style.overflow = '';
+            }, 300);
+        }
+
+        // 初始化
+        window.onload = function() {
+            renderItems();
+        };
+    </script>
+</body>
+</html>
