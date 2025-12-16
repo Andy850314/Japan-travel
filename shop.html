@@ -32,10 +32,18 @@
             transform: translateY(0);
         }
 
-        /* 卡片懸停效果 */
-        .card-container:active {
-            transform: scale(0.98);
-            transition: transform 0.1s;
+        .card-img {
+            height: 180px;
+            object-fit: cover; /* 確保圖片填滿且不變形 */
+            object-position: center center; /* 強制圖片置中 */
+            width: 100%;
+            display: block; /* 避免圖片下方出現多餘空隙 */
+            transition: transform 0.3s ease;
+        }
+        
+        /* 點擊卡片時的微縮效果 */
+        .card:active .card-img {
+            transform: scale(1.02);
         }
 
         /* 底部導航欄 */
@@ -174,8 +182,8 @@
         <div class="fixed inset-0 bg-gray-900/70 backdrop-blur-sm transition-opacity" onclick="closeModal()"></div>
         <div class="fixed inset-0 flex items-center justify-center p-4 pointer-events-none">
             <div class="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl transform transition-all scale-95 opacity-0 pointer-events-auto flex flex-col max-h-[85vh]" id="modal-panel">
-                <div class="relative h-64 shrink-0 bg-gray-100">
-                    <img id="modal-img" src="" alt="" class="w-full h-full object-cover">
+                <div class="relative h-64 shrink-0 bg-gray-200">
+                    <img id="modal-img" src="" alt="" class="w-full h-full object-cover object-center">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
                     <button onclick="closeModal()" class="absolute top-4 right-4 bg-white/20 hover:bg-white/40 text-white rounded-full p-2 w-9 h-9 flex items-center justify-center backdrop-blur-md border border-white/30 z-10 transition-transform hover:scale-110">
                         <i class="fa-solid fa-xmark text-lg"></i>
@@ -1027,7 +1035,7 @@
                 location: '📍 上野 - 淺草',
                 desc: '途經稻荷町、合羽橋道具街，好吃的麵包店。', 
                 tags: ['行程', '散步'], 
-                img: 'https://placehold.co/600x400/F59E0B/ffffff?text=Walk' 
+                img: 'https://placehold.co/600x400/F59E0B/ffffff?text=Ueno+Walk' 
             },
             { 
                 category: 'travel', 
