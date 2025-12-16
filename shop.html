@@ -19,7 +19,7 @@
         
         html { scroll-behavior: smooth; }
 
-        /* 分頁切換邏輯 */
+        /* 分頁切換動畫 */
         .tab-content {
             display: none;
             opacity: 0;
@@ -32,15 +32,10 @@
             transform: translateY(0);
         }
 
-        .card-img {
-            height: 180px;
-            object-fit: cover;
-            width: 100%;
-            transition: transform 0.3s ease;
-        }
-        
-        .card:active .card-img {
-            transform: scale(1.02);
+        /* 卡片懸停效果 */
+        .card-container:active {
+            transform: scale(0.98);
+            transition: transform 0.1s;
         }
 
         /* 底部導航欄 */
@@ -68,20 +63,6 @@
             filter: drop-shadow(0 2px 4px rgba(236, 72, 153, 0.3));
         }
 
-        /* 地點標籤 */
-        .location-badge {
-            font-size: 0.7rem;
-            padding: 2px 8px;
-            border-radius: 6px;
-            background-color: rgba(255, 255, 255, 0.95);
-            color: #334155;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            font-weight: 600;
-        }
-        
         /* 讓 Modal 內的文字可以換行 */
         .whitespace-pre-line {
             white-space: pre-line;
@@ -108,7 +89,7 @@
             <!-- 搜尋欄 -->
             <div class="relative">
                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-pink-200"></i>
-                <input type="text" id="search-input" placeholder="搜尋商品、地點..." class="w-full bg-white/20 backdrop-blur-md text-white placeholder-pink-200 pl-10 pr-4 py-2.5 rounded-xl border border-white/30 focus:outline-none focus:bg-white/30 focus:border-white/50 transition-all text-sm shadow-inner" onkeyup="applyFilters()">
+                <input type="text" id="search-input" placeholder="搜尋：牙膏、東京車站、7-11..." class="w-full bg-white/20 backdrop-blur-md text-white placeholder-pink-200 pl-10 pr-4 py-2.5 rounded-xl border border-white/30 focus:outline-none focus:bg-white/30 focus:border-white/50 transition-all text-sm shadow-inner" onkeyup="applyFilters()">
                 <button id="clear-search" class="hidden absolute right-3 top-2.5 text-pink-200 hover:text-white transition-colors" onclick="resetSearch()">
                     <i class="fa-solid fa-circle-xmark text-lg"></i>
                 </button>
@@ -120,7 +101,7 @@
             
             <!-- 1. 美妝藥妝 -->
             <section id="beauty" class="tab-content active">
-                <div class="flex items-center mb-3 px-1 sticky top-[130px] z-30 py-2 bg-slate-50/95 backdrop-blur-sm">
+                <div class="flex items-center mb-3 px-1 sticky top-[130px] z-30 py-2 bg-slate-50/95 backdrop-blur-sm transition-all duration-300">
                     <span class="w-1.5 h-5 bg-pink-500 rounded-full mr-2 shadow-sm"></span>
                     <h2 class="text-lg font-bold text-gray-800">美妝 & 藥妝</h2>
                 </div>
@@ -129,7 +110,7 @@
 
             <!-- 2. 服飾穿搭 -->
             <section id="fashion" class="tab-content">
-                <div class="flex items-center mb-3 px-1 sticky top-[130px] z-30 py-2 bg-slate-50/95 backdrop-blur-sm">
+                <div class="flex items-center mb-3 px-1 sticky top-[130px] z-30 py-2 bg-slate-50/95 backdrop-blur-sm transition-all duration-300">
                     <span class="w-1.5 h-5 bg-indigo-500 rounded-full mr-2 shadow-sm"></span>
                     <h2 class="text-lg font-bold text-gray-800">服飾 & 穿搭</h2>
                 </div>
@@ -138,7 +119,7 @@
 
             <!-- 3. 美食伴手禮 -->
             <section id="food" class="tab-content">
-                <div class="flex items-center mb-3 px-1 sticky top-[130px] z-30 py-2 bg-slate-50/95 backdrop-blur-sm">
+                <div class="flex items-center mb-3 px-1 sticky top-[130px] z-30 py-2 bg-slate-50/95 backdrop-blur-sm transition-all duration-300">
                     <span class="w-1.5 h-5 bg-amber-500 rounded-full mr-2 shadow-sm"></span>
                     <h2 class="text-lg font-bold text-gray-800">美食 & 伴手禮</h2>
                 </div>
@@ -147,7 +128,7 @@
 
             <!-- 4. 景點與其他 -->
             <section id="travel" class="tab-content">
-                <div class="flex items-center mb-3 px-1 sticky top-[130px] z-30 py-2 bg-slate-50/95 backdrop-blur-sm">
+                <div class="flex items-center mb-3 px-1 sticky top-[130px] z-30 py-2 bg-slate-50/95 backdrop-blur-sm transition-all duration-300">
                     <span class="w-1.5 h-5 bg-emerald-500 rounded-full mr-2 shadow-sm"></span>
                     <h2 class="text-lg font-bold text-gray-800">景點 & 雜貨</h2>
                 </div>
@@ -231,13 +212,13 @@
     </div>
 
     <script>
-        // 資料庫：已整合牙膏、新增詳細地點、圖片改為英文以防亂碼
+        // 資料庫：整合牙膏、詳細地點、英文圖片佔位符
         const items = [
             // === 美妝藥妝 (Beauty) ===
             { 
                 category: 'beauty', 
                 title: '第一三共 Clean Dental 牙膏全系列', 
-                location: '📍 各大藥妝店 (松本清、大國、SunDrug、唐吉訶德)',
+                location: '📍 各大藥妝店 (松本清、大國、SunDrug)',
                 desc: '針對不同口腔問題的專業護理牙膏：\n\n🔴 紅色 (經典全效)：針對牙齦腫脹、出血及牙周病預防。味道帶鹹味。\n🟢 綠色 (敏感護理)：溫和護理，防冷熱酸痛刺激。\n🟡 黃色 (口臭護理)：檸檬清香，針對口臭護理與牙菌斑防護。\n🩷 粉色 (美白護理)：去除牙漬、咖啡漬、茶漬。\n🔵 藍色 (無研磨劑)：凝膠狀，適合電動牙刷或極敏感牙齒。\n\n💡 牙周病軟膏：紅色小條管狀，直接塗抹在紅腫牙齦上。', 
                 tags: ['牙膏', '必買', '牙周病'], 
                 img: 'image/clean.jpg' 
@@ -320,7 +301,7 @@
                 location: '📍 藥妝店 (敏感肌專區)',
                 desc: '資生堂旗下，高精製凡士林配合，保濕修復力強，換季敏感肌大推。', 
                 tags: ['保養', '敏感肌'], 
-                img: 'https://placehold.co/600x400/3B82F6/ffffff?text=Face+Milk' 
+                img: 'https://placehold.co/600x400/3B82F6/ffffff?text=IHADA+Milk' 
             },
             { 
                 category: 'beauty', 
@@ -336,7 +317,7 @@
                 location: '📍 藥妝店、Loft、Plaza',
                 desc: '質地滋潤不卡紋，遮蓋力好，網友推薦 02 號色。', 
                 tags: ['彩妝', '遮瑕'], 
-                img: 'https://placehold.co/600x400/FBBF24/ffffff?text=Concealer' 
+                img: 'https://placehold.co/600x400/FBBF24/ffffff?text=Excel+Concealer' 
             },
             { 
                 category: 'beauty', 
@@ -344,7 +325,7 @@
                 location: '📍 藥妝店、便利商店',
                 desc: '紫色/紅色包裝，含有化妝水成分，吸油同時補妝，按壓後妝容服貼。', 
                 tags: ['工具', '補妝'], 
-                img: 'https://placehold.co/600x400/1E40AF/ffffff?text=Oil+Blotting+Paper' 
+                img: 'https://placehold.co/600x400/1E40AF/ffffff?text=Biore+Makeup+Sheet' 
             },
             { 
                 category: 'beauty', 
@@ -360,7 +341,7 @@
                 location: '📍 藥妝店 (Sofina 櫃)',
                 desc: '黑色軟管，洗完臉後針對黑頭粉刺按摩，近期熱門新品。', 
                 tags: ['保養', '黑頭'], 
-                img: 'https://placehold.co/600x400/1F2937/ffffff?text=Pore+Gel' 
+                img: 'https://placehold.co/600x400/1F2937/ffffff?text=Sofina+Pore+Gel' 
             },
             { 
                 category: 'beauty', 
@@ -376,7 +357,7 @@
                 location: '📍 藥妝店、唐吉訶德',
                 desc: '軟糖形式好吃又有效。\n💜 紫色：鐵 & 葉酸 (防貧血)\n💛 黃色：維他命C', 
                 tags: ['保健', '軟糖'], 
-                img: 'https://placehold.co/600x400/F59E0B/ffffff?text=Gummy+Supple' 
+                img: 'https://placehold.co/600x400/F59E0B/ffffff?text=UHA+Gummy' 
             },
             { 
                 category: 'beauty', 
@@ -384,7 +365,7 @@
                 location: '📍 藥妝店 (減肥保健區)',
                 desc: '吃大餐前吃，幫助分解澱粉糖分，消水腫。', 
                 tags: ['保健', '瘦身'], 
-                img: 'https://placehold.co/600x400/D97706/ffffff?text=Yeast+Enzyme' 
+                img: 'https://placehold.co/600x400/D97706/ffffff?text=Svelty+Yeast' 
             },
             { 
                 category: 'beauty', 
@@ -392,7 +373,7 @@
                 location: '📍 藥妝店 (牙刷區)',
                 desc: '刷毛如雲朵般柔軟，深入齒縫，觸感超神奇。', 
                 tags: ['工具', '牙刷'], 
-                img: 'https://placehold.co/600x400/94A3B8/ffffff?text=Toothbrush' 
+                img: 'https://placehold.co/600x400/94A3B8/ffffff?text=Soft+Toothbrush' 
             },
             { 
                 category: 'beauty', 
@@ -400,7 +381,7 @@
                 location: '📍 藥妝店、Loft',
                 desc: '限定壓紋款，粉色提氣色，藍色提亮。外殼超可愛。', 
                 tags: ['彩妝', '限定'], 
-                img: 'https://placehold.co/600x400/F472B6/ffffff?text=Face+Powder' 
+                img: 'https://placehold.co/600x400/F472B6/ffffff?text=CANMAKE+Powder' 
             },
             { 
                 category: 'beauty', 
@@ -408,7 +389,7 @@
                 location: '📍 ReFa銀座精品店、GINZA SIX、部分百貨',
                 desc: '推薦新品捲髮棒、直髮夾、愛心梳（有銀座限定色）。', 
                 tags: ['美髮', '銀座'], 
-                img: 'https://placehold.co/600x400/6366F1/ffffff?text=ReFa' 
+                img: 'https://placehold.co/600x400/6366F1/ffffff?text=ReFa+Ginza' 
             },
             { 
                 category: 'beauty', 
@@ -416,7 +397,7 @@
                 location: '📍 澀谷 Scramble Square、表參道、部分百貨',
                 desc: '白百合髮油、柚子保濕噴霧、皂香身體乳。味道高級，像大小姐身上的味道。', 
                 tags: ['香氛', '美髮'], 
-                img: 'https://placehold.co/600x400/F3F4F6/ffffff?text=Shiro' 
+                img: 'https://placehold.co/600x400/F3F4F6/ffffff?text=SHIRO+Fragrance' 
             },
             { 
                 category: 'beauty', 
@@ -424,7 +405,7 @@
                 location: '📍 藥妝店、Loft',
                 desc: '像睫毛膏一樣的刷頭，整理碎髮神器，不會讓頭髮變硬條狀。', 
                 tags: ['美髮', '定型'], 
-                img: 'https://placehold.co/600x400/FCD34D/ffffff?text=Hair+Stick' 
+                img: 'https://placehold.co/600x400/FCD34D/ffffff?text=Honey+Hair+Stick' 
             },
             { 
                 category: 'beauty', 
@@ -440,7 +421,7 @@
                 location: '📍 藥妝店 (Kanebo櫃)、百貨專櫃',
                 desc: 'Comfort Stretchy Wash，黑色軟管，牽絲質地，洗完不乾澀。', 
                 tags: ['洗臉', '保濕'], 
-                img: 'https://placehold.co/600x400/1F2937/ffffff?text=Face+Wash' 
+                img: 'https://placehold.co/600x400/1F2937/ffffff?text=Kanebo+Wash' 
             },
             { 
                 category: 'beauty', 
@@ -448,7 +429,7 @@
                 location: '📍 淺草仲見世通',
                 desc: '必買護髮油、護手霜，有365種生日花紋包裝，適合送禮。', 
                 tags: ['保養', '淺草'], 
-                img: 'https://placehold.co/600x400/D97706/ffffff?text=Hair+Oil' 
+                img: 'https://placehold.co/600x400/D97706/ffffff?text=Yoroshi+Oil' 
             },
 
             // === 服飾穿搭 (Fashion) ===
@@ -458,7 +439,7 @@
                 location: '📍 Mont-bell 門市 (澀谷、新宿南口)',
                 desc: '輕量保暖羽絨圍巾(冬季必備)、無領內搭羽絨衣(國民制服)。', 
                 tags: ['配件', '保暖'], 
-                img: 'https://placehold.co/600x400/4B5563/ffffff?text=Down+Muffler' 
+                img: 'https://placehold.co/600x400/4B5563/ffffff?text=Montbell+Down' 
             },
             { 
                 category: 'fashion', 
@@ -466,7 +447,7 @@
                 location: '📍 銀座店、LUMINE EST 新宿',
                 desc: '價格平易近人，質地和版型超日系小清新，是 GU、UNIQLO 之外的好選擇。', 
                 tags: ['女裝', '平價'], 
-                img: 'https://placehold.co/600x400/9CA3AF/ffffff?text=COCA' 
+                img: 'https://placehold.co/600x400/9CA3AF/ffffff?text=COCA+Fashion' 
             },
             { 
                 category: 'fashion', 
@@ -474,7 +455,7 @@
                 location: '📍 United Arrows 門市 (澀谷、新宿)',
                 desc: '金屬色雲朵包、扭蛋環保袋超紅，顏色選擇多，需包色！', 
                 tags: ['包包', '潮牌'], 
-                img: 'https://placehold.co/600x400/A855F7/ffffff?text=Citen+Bag' 
+                img: 'https://placehold.co/600x400/A855F7/ffffff?text=CITEN+Bag' 
             },
             { 
                 category: 'fashion', 
@@ -490,7 +471,7 @@
                 location: '📍 Stussy 門市 (澀谷、原宿)',
                 desc: '東京限定款 Hoodie 和 T-shirt，經常補貨，潮流人士必搶。', 
                 tags: ['潮牌', '限定'], 
-                img: 'https://placehold.co/600x400/1F2937/ffffff?text=Stussy' 
+                img: 'https://placehold.co/600x400/1F2937/ffffff?text=Stussy+Tokyo' 
             },
             { 
                 category: 'fashion', 
@@ -498,7 +479,7 @@
                 location: '📍 GAP 銀座旗艦店',
                 desc: '可以刺繡寵物名字的 GAP 帽T，非常有紀念價值，還有很多貼布可選。', 
                 tags: ['寵物', '客製'], 
-                img: 'https://placehold.co/600x400/2563EB/ffffff?text=GAP+Pet' 
+                img: 'https://placehold.co/600x400/2563EB/ffffff?text=GAP+Pet+Wear' 
             },
             { 
                 category: 'fashion', 
@@ -506,7 +487,7 @@
                 location: '📍 藥妝店、唐吉訶德、Bic Camera',
                 desc: '包裝上有大大的「溫」字。超薄發熱，冬天穿裙子必備，迪士尼抗寒神物。', 
                 tags: ['襪子', '保暖'], 
-                img: 'https://placehold.co/600x400/FB923C/ffffff?text=Heat+Tights' 
+                img: 'https://placehold.co/600x400/FB923C/ffffff?text=ATSUGI+Tights' 
             },
             { 
                 category: 'fashion', 
@@ -514,7 +495,7 @@
                 location: '📍 靴下屋 (Tabio)、藥妝店',
                 desc: '80丹保暖假透肉，適合0-10度，自然不假白，膚色均勻。', 
                 tags: ['襪子', '保暖'], 
-                img: 'https://placehold.co/600x400/FCA5A5/ffffff?text=Fake+Skin+Tights' 
+                img: 'https://placehold.co/600x400/FCA5A5/ffffff?text=Sheer+Tights' 
             },
             { 
                 category: 'fashion', 
@@ -522,7 +503,7 @@
                 location: '📍 百貨公司 (Lumine EST, 澀谷Parco)',
                 desc: '觸感超柔軟的家居服，日本買便宜很多，也有跟寶可夢等聯名款。', 
                 tags: ['家居', '睡衣'], 
-                img: 'https://placehold.co/600x400/FBCFE8/ffffff?text=Pajamas' 
+                img: 'https://placehold.co/600x400/FBCFE8/ffffff?text=Gelato+Pique' 
             },
             { 
                 category: 'fashion', 
@@ -530,7 +511,7 @@
                 location: '📍 Niko and... 原宿旗艦店',
                 desc: '大花朵圖案毛衣，可愛復古風，旗艦店超大超好逛。', 
                 tags: ['女裝', '穿搭'], 
-                img: 'https://placehold.co/600x400/1F2937/ffffff?text=Flower+Sweater' 
+                img: 'https://placehold.co/600x400/1F2937/ffffff?text=Niko+and...' 
             },
             { 
                 category: 'fashion', 
@@ -538,7 +519,7 @@
                 location: '📍 UNIQLO TOKYO (銀座)',
                 desc: 'Uniqlo姊妹牌，有花邊的發熱衣，質感很好，可當內搭露出。', 
                 tags: ['內衣', '發熱衣'], 
-                img: 'https://placehold.co/600x400/E5E7EB/000000?text=Innerwear' 
+                img: 'https://placehold.co/600x400/E5E7EB/000000?text=Princesse+TamTam' 
             },
 
             // === 美食伴手禮 (Food) ===
@@ -548,7 +529,7 @@
                 location: '📍 東京車站 1F 南通路',
                 desc: '萬年排隊名店。起司奶油脆餅，鹹甜交織大人味。建議早上就要去排。', 
                 tags: ['伴手禮', '起司'], 
-                img: 'https://placehold.co/600x400/F59E0B/ffffff?text=Cheese+Cookie' 
+                img: 'https://placehold.co/600x400/F59E0B/ffffff?text=NY+Perfect+Cheese' 
             },
             { 
                 category: 'food', 
@@ -556,7 +537,7 @@
                 location: '📍 東京車站 1F Gransta',
                 desc: '榛果與木莓夾心餅乾，包裝精緻，堅果控首選。', 
                 tags: ['伴手禮', '榛果'], 
-                img: 'https://placehold.co/600x400/78350F/ffffff?text=Hazelnut+Cookie' 
+                img: 'https://placehold.co/600x400/78350F/ffffff?text=COCORIS' 
             },
             { 
                 category: 'food', 
@@ -564,7 +545,7 @@
                 location: '📍 大丸東京店 1F',
                 desc: '咬下會爆漿的奢華流心焦糖巧克力餅乾，排隊名店。', 
                 tags: ['伴手禮', '焦糖'], 
-                img: 'https://placehold.co/600x400/92400E/ffffff?text=Caramel+Cookie' 
+                img: 'https://placehold.co/600x400/92400E/ffffff?text=NYC+SAND' 
             },
             { 
                 category: 'food', 
@@ -572,7 +553,7 @@
                 location: '📍 東京車站、新宿站 NEWoMan',
                 desc: '奶油費南雪，外酥內濕潤，奶油香氣十足，經典不敗款。', 
                 tags: ['伴手禮', '費南雪'], 
-                img: 'https://placehold.co/600x400/FBBF24/ffffff?text=Butter+Financier' 
+                img: 'https://placehold.co/600x400/FBBF24/ffffff?text=Butter+Butler' 
             },
             { 
                 category: 'food', 
@@ -580,7 +561,7 @@
                 location: '📍 東京車站 1F 八重洲北口',
                 desc: '焦糖烤布蕾塔，東京車站新寵，表面炙燒焦糖脆皮，內餡香草卡士達。', 
                 tags: ['伴手禮', '布蕾'], 
-                img: 'https://placehold.co/600x400/D97706/ffffff?text=Brulee+Tart' 
+                img: 'https://placehold.co/600x400/D97706/ffffff?text=BRULEE+MERIZE' 
             },
             { 
                 category: 'food', 
@@ -596,7 +577,7 @@
                 location: '📍 品川站、東京站',
                 desc: '紅寶石草莓果醬夾心餅乾，像寶石一樣的精緻甜點，女生最愛。', 
                 tags: ['伴手禮', '草莓'], 
-                img: 'https://placehold.co/600x400/E11D48/ffffff?text=Ruby+Cookie' 
+                img: 'https://placehold.co/600x400/E11D48/ffffff?text=Very+Ruby+Cut' 
             },
             { 
                 category: 'food', 
@@ -604,7 +585,7 @@
                 location: '📍 大丸東京店、西武池袋',
                 desc: '火山造型的奶油餅乾，濃濃奶油和可可香氣，有聖誕限定版。', 
                 tags: ['甜點', '限定'], 
-                img: 'https://placehold.co/600x400/78350F/ffffff?text=Butter+Cookie' 
+                img: 'https://placehold.co/600x400/78350F/ffffff?text=Butter+States' 
             },
             { 
                 category: 'food', 
@@ -612,7 +593,7 @@
                 location: '📍 銀座三越 B2、新宿伊勢丹 B1',
                 desc: '現烤費南雪，外酥內濕潤，排隊名店，此生必吃費南雪。', 
                 tags: ['伴手禮', '費南雪'], 
-                img: 'https://placehold.co/600x400/D97706/ffffff?text=Financier' 
+                img: 'https://placehold.co/600x400/D97706/ffffff?text=Noix+de+Beurre' 
             },
             { 
                 category: 'food', 
@@ -628,7 +609,7 @@
                 location: '📍 日本橋高島屋、西武池袋',
                 desc: 'Hello Berry，外型像花束，草莓乾配奶油，高顏值伴手禮。', 
                 tags: ['伴手禮', '顏值'], 
-                img: 'https://placehold.co/600x400/F43F5E/ffffff?text=Strawberry+Cookie' 
+                img: 'https://placehold.co/600x400/F43F5E/ffffff?text=Audrey' 
             },
             { 
                 category: 'food', 
@@ -636,7 +617,7 @@
                 location: '📍 東京車站 1F',
                 desc: '開心果夾心餅乾，薄脆口感，開心果控必買。', 
                 tags: ['伴手禮', '開心果'], 
-                img: 'https://placehold.co/600x400/84CC16/ffffff?text=Pistachio+Cookie' 
+                img: 'https://placehold.co/600x400/84CC16/ffffff?text=Pistachio+Tokyo' 
             },
             { 
                 category: 'food', 
@@ -644,7 +625,7 @@
                 location: '📍 成田機場、東京車站、澀谷',
                 desc: '焦糖奶油夾心，推薦原味和伯爵茶口味。口感層次豐富。', 
                 tags: ['伴手禮', '餅乾'], 
-                img: 'https://placehold.co/600x400/D97706/ffffff?text=Butter+Sand' 
+                img: 'https://placehold.co/600x400/D97706/ffffff?text=Press+Butter+Sand' 
             },
             { 
                 category: 'food', 
@@ -652,7 +633,7 @@
                 location: '📍 表參道、代官山',
                 desc: '手工牛奶糖，數字代表不同口味 (如No.2 鹽味)，包裝簡約有質感。', 
                 tags: ['甜點', '牛奶糖'], 
-                img: 'https://placehold.co/600x400/F3F4F6/000000?text=Caramel' 
+                img: 'https://placehold.co/600x400/F3F4F6/000000?text=Number+Sugar' 
             },
             { 
                 category: 'food', 
@@ -660,7 +641,7 @@
                 location: '📍 銀座本店、新宿伊勢丹 B1',
                 desc: '金氏世界紀錄銷量第一的費南雪，經典法式甜點。', 
                 tags: ['伴手禮', '費南雪'], 
-                img: 'https://placehold.co/600x400/D97706/ffffff?text=No1+Financier' 
+                img: 'https://placehold.co/600x400/D97706/ffffff?text=Henri+Charpentier' 
             },
             { 
                 category: 'food', 
@@ -700,7 +681,7 @@
                 location: '📍 7-11',
                 desc: '藍色包裝，口感酥脆的帶皮薯條餅乾。', 
                 tags: ['超商', '零食'], 
-                img: 'https://placehold.co/600x400/1E3A8A/ffffff?text=Potato+Chips' 
+                img: 'https://placehold.co/600x400/1E3A8A/ffffff?text=Potato+Wedges' 
             },
             { 
                 category: 'food', 
@@ -716,7 +697,7 @@
                 location: '📍 有樂町、外苑前、六本木',
                 desc: '日本/東京限定口味，Roasted Green Tea Shake，茶味濃郁。', 
                 tags: ['美食', '飲料'], 
-                img: 'https://placehold.co/600x400/10B981/ffffff?text=Shake' 
+                img: 'https://placehold.co/600x400/10B981/ffffff?text=Shake+Shack' 
             },
             { 
                 category: 'food', 
@@ -724,7 +705,7 @@
                 location: '📍 銀座店、日本橋店',
                 desc: '超寬「鬼寬烏龍麵」，口感Q彈，排隊名店。', 
                 tags: ['美食', '烏龍麵'], 
-                img: 'https://placehold.co/600x400/F59E0B/ffffff?text=Udon' 
+                img: 'https://placehold.co/600x400/F59E0B/ffffff?text=Udon+Noodle' 
             },
             { 
                 category: 'food', 
@@ -732,7 +713,7 @@
                 location: '📍 上野、御徒町',
                 desc: '阿美橫町高CP值美食，肉厚多汁，排隊名店。', 
                 tags: ['美食', '豬排'], 
-                img: 'https://placehold.co/600x400/D97706/ffffff?text=Pork+Cutlet' 
+                img: 'https://placehold.co/600x400/D97706/ffffff?text=Tonkatsu' 
             },
             { 
                 category: 'food', 
@@ -780,7 +761,7 @@
                 location: '📍 超商、超市',
                 desc: '被稱為「炸屎神器」，整腸效果強，比 R1 更有感。', 
                 tags: ['超商', '優格'], 
-                img: 'https://placehold.co/600x400/3B82F6/ffffff?text=Yogurt' 
+                img: 'https://placehold.co/600x400/3B82F6/ffffff?text=Bifidus+Yogurt' 
             },
             { 
                 category: 'food', 
@@ -812,7 +793,7 @@
                 location: '📍 機場免稅店',
                 desc: '開心果巧克力棒、抹茶巧克力棒，機場必買。', 
                 tags: ['伴手禮', '巧克力'], 
-                img: 'https://placehold.co/600x400/84CC16/ffffff?text=Royce+Choco' 
+                img: 'https://placehold.co/600x400/84CC16/ffffff?text=Royce+Chocolate' 
             },
             { 
                 category: 'food', 
@@ -828,7 +809,7 @@
                 location: '📍 秋葉原站 總武線月台',
                 desc: '大山乳業咖啡牛奶，各種日本各地好喝牛奶。', 
                 tags: ['美食', '飲料'], 
-                img: 'https://placehold.co/600x400/3B82F6/ffffff?text=Milk' 
+                img: 'https://placehold.co/600x400/3B82F6/ffffff?text=Coffee+Milk' 
             },
             { 
                 category: 'food', 
@@ -836,7 +817,7 @@
                 location: '📍 淺草仲見世通',
                 desc: '木村拓哉也推薦的店，酸甜適中。', 
                 tags: ['伴手禮', '梅乾'], 
-                img: 'https://placehold.co/600x400/BE123C/ffffff?text=Dried+Plum' 
+                img: 'https://placehold.co/600x400/BE123C/ffffff?text=Plum' 
             },
             { 
                 category: 'food', 
@@ -844,7 +825,7 @@
                 location: '📍 超商、超市',
                 desc: '口感超Q彈，水果口味濃厚。', 
                 tags: ['零食', '軟糖'], 
-                img: 'https://placehold.co/600x400/F59E0B/ffffff?text=Gummy' 
+                img: 'https://placehold.co/600x400/F59E0B/ffffff?text=Tough+Gummy' 
             },
             { 
                 category: 'food', 
@@ -868,7 +849,7 @@
                 location: '📍 超市、Loft、戶外用品店',
                 desc: '烤肉神器，萬用調味粉，有原味、辣味、黑松露味。', 
                 tags: ['超市', '調味'], 
-                img: 'https://placehold.co/600x400/000000/ffffff?text=Spice' 
+                img: 'https://placehold.co/600x400/000000/ffffff?text=Horinishi' 
             },
             { 
                 category: 'food', 
@@ -884,7 +865,7 @@
                 location: '📍 超商、超市',
                 desc: '湯頭鮮美，滿滿的蛤蜊鮮味。', 
                 tags: ['超商', '泡麵'], 
-                img: 'https://placehold.co/600x400/FCD34D/ffffff?text=Clam+Ramen' 
+                img: 'https://placehold.co/600x400/FCD34D/ffffff?text=Ramen' 
             },
             { 
                 category: 'food', 
@@ -934,7 +915,7 @@
                 location: '📍 東京 Midtown (六本木)',
                 desc: '有噴雪花和泡泡的夢幻造景。', 
                 tags: ['景點', '夜景'], 
-                img: 'https://placehold.co/600x400/3B82F6/ffffff?text=Midtown' 
+                img: 'https://placehold.co/600x400/3B82F6/ffffff?text=Midtown+Illumination' 
             },
             { 
                 category: 'travel', 
@@ -974,13 +955,13 @@
                 location: '📍 淺草',
                 desc: '招財貓發源地，求姻緣超靈驗。', 
                 tags: ['神社', '淺草'], 
-                img: 'https://placehold.co/600x400/EF4444/ffffff?text=Shrine' 
+                img: 'https://placehold.co/600x400/EF4444/ffffff?text=Imado+Shrine' 
             },
             { 
                 category: 'travel', 
                 title: '川越/鎌倉 神社巡禮', 
                 location: '📍 埼玉川越、神奈川鎌倉',
-                desc: '川越冰川、明治神宮、小網神社、豪德寺、鎌倉大佛。', 
+                desc: '川越冰川(戀愛)、明治神宮(能量)、小網神社(財運)、豪德寺(招財貓)。', 
                 tags: ['神社', '攻略'], 
                 img: 'https://placehold.co/600x400/10B981/ffffff?text=Shrine+Tour' 
             },
@@ -1020,7 +1001,7 @@
                 category: 'travel', 
                 title: 'Petio 寵物電暖板', 
                 location: '📍 寵物店、Amazon JP',
-                desc: '雙面不同溫度，日本製，冬天毛小孩保暖。', 
+                desc: '雙面不同溫度，日本製，冬天毛小孩保暖神器。', 
                 tags: ['寵物', '電器'], 
                 img: 'https://placehold.co/600x400/F97316/ffffff?text=Pet+Heater' 
             },
@@ -1030,7 +1011,7 @@
                 location: '📍 3COINS',
                 desc: '可微波的平底鍋造型，煎牛排、炒菜無油煙。', 
                 tags: ['生活', '廚具'], 
-                img: 'https://placehold.co/600x400/FCD34D/ffffff?text=Microwave+Cooker' 
+                img: 'https://placehold.co/600x400/FCD34D/ffffff?text=Microwave+Pot' 
             },
             { 
                 category: 'travel', 
@@ -1086,7 +1067,7 @@
                             <div class="p-4 flex-1 flex flex-col">
                                 <h3 class="font-bold text-gray-800 text-base mb-2 leading-snug">${item.title}</h3>
                                 <p class="text-xs text-gray-500 mb-2 flex items-center">
-                                    <i class="fa-solid fa-location-dot mr-1 text-pink-500"></i> ${item.location.split(' ')[1] || item.location}
+                                    <i class="fa-solid fa-location-dot mr-1 text-pink-500"></i> ${item.location}
                                 </p>
                                 <div class="flex flex-wrap gap-1 mt-auto">
                                     ${item.tags.slice(0,2).map(tag => `<span class="text-[10px] bg-gray-100 text-gray-500 px-2 py-1 rounded">#${tag}</span>`).join('')}
@@ -1193,5 +1174,3 @@
     </script>
 </body>
 </html>
-
-
