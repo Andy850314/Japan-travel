@@ -39,10 +39,31 @@
             width: 100%;
             display: block;
             transition: transform 0.3s ease;
+            background-color: #e2e8f0; /* 圖片載入前的背景色 */
         }
         
         .card:hover .card-img {
             transform: scale(1.03); /* 懸停時輕微放大 */
+        }
+
+        /* ★ 新增：已購買/已完成的樣式 */
+        .card.is-bought {
+            filter: grayscale(100%); /* 變黑白 */
+            opacity: 0.7;
+        }
+        .card.is-bought::after {
+            content: '✅ 已完成';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            pointer-events: none;
+            z-index: 10;
         }
 
         /* 底部導航欄 */
@@ -73,6 +94,23 @@
         /* 讓 Modal 內的文字可以換行 */
         .whitespace-pre-line {
             white-space: pre-line;
+        }
+        
+        /* 回到頂部按鈕 */
+        #back-to-top {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            z-index: 40;
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            transform: translateY(20px);
+            pointer-events: none;
+        }
+        #back-to-top.show {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
         }
     </style>
 </head>
@@ -155,6 +193,11 @@
         </main>
     </div>
 
+    <!-- 回到頂部按鈕 -->
+    <button id="back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="bg-white text-pink-500 w-12 h-12 rounded-full shadow-lg border border-pink-100 flex items-center justify-center hover:bg-pink-50 hover:scale-110 transition-all duration-300">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
+
     <!-- 底部導航欄 -->
     <nav class="bottom-nav">
         <div class="max-w-2xl mx-auto flex justify-between items-center px-6 py-2">
@@ -183,7 +226,8 @@
         <div class="fixed inset-0 flex items-center justify-center p-4 pointer-events-none">
             <div class="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl transform transition-all scale-95 opacity-0 pointer-events-auto flex flex-col max-h-[85vh]" id="modal-panel">
                 <div class="relative h-64 shrink-0 bg-gray-100">
-                    <img id="modal-img" src="" alt="" class="w-full h-full object-cover">
+                    <!-- ★ 修正：加入圖片防呆 onerror，若路徑錯誤會顯示預設圖 -->
+                    <img id="modal-img" src="" alt="" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/600x400/e2e8f0/64748b?text=No+Image'">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
                     <button onclick="closeModal()" class="absolute top-4 right-4 bg-white/20 hover:bg-white/40 text-white rounded-full p-2 w-9 h-9 flex items-center justify-center backdrop-blur-md border border-white/30 z-10 transition-transform hover:scale-110">
                         <i class="fa-solid fa-xmark text-lg"></i>
@@ -200,10 +244,15 @@
                             <span id="modal-category-badge" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold shadow-sm"></span>
                         </div>
                         
-                        <!-- 購買地點 (重點強調) -->
-                        <div class="bg-gray-50 p-3 rounded-lg border-l-4 border-pink-500 shadow-sm">
-                            <p class="text-xs text-gray-500 font-bold mb-1 uppercase tracking-wider">WHERE TO BUY</p>
-                            <p id="modal-location-text" class="text-gray-800 font-bold text-sm"></p>
+                        <!-- ★ 修正：加入 Google Maps 導航按鈕 -->
+                        <div class="bg-gray-50 p-3 rounded-lg border-l-4 border-pink-500 shadow-sm flex justify-between items-center">
+                            <div>
+                                <p class="text-xs text-gray-500 font-bold mb-1 uppercase tracking-wider">WHERE TO BUY</p>
+                                <p id="modal-location-text" class="text-gray-800 font-bold text-sm"></p>
+                            </div>
+                            <a id="modal-map-link" href="#" target="_blank" class="bg-white border border-gray-200 text-pink-500 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-pink-50 transition flex items-center gap-1 shadow-sm">
+                                <i class="fa-solid fa-map-location-dot"></i> 導航
+                            </a>
                         </div>
                     </div>
 
@@ -211,8 +260,9 @@
                         <p id="modal-desc"></p>
                     </div>
                     
-                    <button class="w-full bg-gray-900 text-white py-4 rounded-xl text-sm font-bold shadow-lg hover:bg-gray-800 active:scale-[0.98] transition flex items-center justify-center gap-2" onclick="closeModal()">
-                        <i class="fa-solid fa-check"></i> 知道了 / 標記為已買
+                    <!-- ★ 修正：加入狀態切換按鈕 -->
+                    <button id="modal-action-btn" class="w-full py-4 rounded-xl text-sm font-bold shadow-lg active:scale-[0.98] transition flex items-center justify-center gap-2" onclick="toggleBoughtState()">
+                        <!-- JS 動態填入 -->
                     </button>
                 </div>
             </div>
@@ -220,7 +270,7 @@
     </div>
 
     <script>
-        // 資料庫：提高圖片解析度，避免模糊
+        // 資料庫：保留您設定的圖片路徑
         const items = [
             // === 美妝藥妝 (Beauty) ===
             { 
@@ -393,7 +443,7 @@
             },
             { 
                 category: 'beauty', 
-                title: 'ReFa 愛心梳', 
+                title: 'ReFa 銀座店', 
                 location: '📍 ReFa銀座精品店、GINZA SIX、部分百貨',
                 desc: '推薦新品捲髮棒、直髮夾、愛心梳（有銀座限定色）。', 
                 tags: ['美髮', '銀座'], 
@@ -967,6 +1017,14 @@
             },
             { 
                 category: 'travel', 
+                title: '川越/鎌倉 神社巡禮', 
+                location: '📍 埼玉川越、神奈川鎌倉',
+                desc: '川越冰川(戀愛)、明治神宮(能量)、小網神社(財運)、豪德寺(招財貓)。', 
+                tags: ['神社', '攻略'], 
+                img: 'image/shrine_tour.jpg' 
+            },
+            { 
+                category: 'travel', 
                 title: '無印良品 梳子清潔刷', 
                 location: '📍 無印良品',
                 desc: '輕鬆清理梳子上纏繞的頭髮，實用小物。', 
@@ -1023,6 +1081,14 @@
             },
             { 
                 category: 'travel', 
+                title: '上野到淺草 散步路線', 
+                location: '📍 上野 - 淺草',
+                desc: '途經稻荷町、合羽橋道具街，好吃的麵包店。', 
+                tags: ['行程', '散步'], 
+                img: 'image/上野到淺草 散步路線.jpg' 
+            },
+            { 
+                category: 'travel', 
                 title: '大猩猩腿部按摩器', 
                 location: '📍 Bic Camera、Yodobashi',
                 desc: 'Gorilla no Hitotsukami，強力氣壓按摩小腿。', 
@@ -1032,6 +1098,22 @@
         ];
 
         let currentSearch = '';
+        let boughtItems = JSON.parse(localStorage.getItem('boughtItems')) || [];
+
+        // 初始化
+        window.onload = function() {
+            renderItems();
+            
+            // 監聽滾動事件，顯示/隱藏「回到頂部」按鈕
+            window.addEventListener('scroll', () => {
+                const btn = document.getElementById('back-to-top');
+                if (window.scrollY > 300) {
+                    btn.classList.add('show');
+                } else {
+                    btn.classList.remove('show');
+                }
+            });
+        };
 
         function renderItems() {
             const categories = ['beauty', 'fashion', 'food', 'travel'];
@@ -1049,20 +1131,23 @@
 
                 if (matchesSearch) {
                     totalVisible++;
+                    const isBought = boughtItems.includes(item.title);
+                    const cardClass = isBought ? 'card is-bought' : 'card';
                     
                     const card = `
-                        <div class="card bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100 flex flex-col h-full cursor-pointer hover:shadow-md transition-shadow"
+                        <div class="${cardClass} bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100 flex flex-col h-full cursor-pointer hover:shadow-md transition-shadow group"
                              onclick="openModal('${item.title}', '${item.desc.replace(/'/g, "\\'")}', '${item.img}', '${getCategoryName(item.category)}', '${item.location}', '${item.tags.join(',')}')">
-                            <div class="relative overflow-hidden">
-                                <img src="${item.img}" alt="${item.title}" class="card-img" loading="lazy">
+                            <div class="card-img-container">
+                                <!-- 圖片防呆：onerror 屬性會在圖片載入失敗時觸發 -->
+                                <img src="${item.img}" alt="${item.title}" class="card-img" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/600x400/e2e8f0/64748b?text=No+Image';">
                             </div>
                             <div class="p-4 flex-1 flex flex-col">
-                                <h3 class="font-bold text-gray-800 text-base mb-2 leading-snug">${item.title}</h3>
-                                <p class="text-xs text-gray-500 mb-2 flex items-center">
-                                    <i class="fa-solid fa-location-dot mr-1 text-pink-500"></i> ${item.location.split(' ')[1] || item.location}
+                                <h3 class="font-bold text-gray-800 text-base mb-2 leading-snug group-hover:text-pink-600 transition-colors">${item.title}</h3>
+                                <p class="text-xs text-gray-500 mb-2 flex items-center font-medium">
+                                    <i class="fa-solid fa-location-dot mr-1 text-pink-500"></i> ${item.location.split(' ')[0]}
                                 </p>
                                 <div class="flex flex-wrap gap-1 mt-auto">
-                                    ${item.tags.slice(0,2).map(tag => `<span class="text-[10px] bg-gray-100 text-gray-500 px-2 py-1 rounded">#${tag}</span>`).join('')}
+                                    ${item.tags.slice(0,2).map(tag => `<span class="text-[10px] bg-slate-100 text-slate-500 px-2 py-1 rounded font-semibold">#${tag}</span>`).join('')}
                                 </div>
                             </div>
                         </div>
@@ -1118,7 +1203,10 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
+        let currentModalTitle = '';
+
         function openModal(title, desc, img, category, location, tags) {
+            currentModalTitle = title; // 儲存當前商品標題供 toggleBoughtState 使用
             const modal = document.getElementById('modal');
             const panel = document.getElementById('modal-panel');
             
@@ -1128,14 +1216,24 @@
             document.getElementById('modal-category-badge').innerText = category;
             document.getElementById('modal-location-text').innerText = location;
             
+            // 更新 Google Maps 連結
+            const mapUrl = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(location.split('(')[0]); // 移除括號內容增加搜尋準確度
+            document.getElementById('modal-map-link').href = mapUrl;
+
+            // 更新按鈕狀態
+            updateModalButtonState();
+
+            // 類別徽章顏色
             const badge = document.getElementById('modal-category-badge');
-            if (category === '美妝藥妝') badge.className = 'inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-pink-100 text-pink-700';
-            else if (category === '服飾穿搭') badge.className = 'inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700';
-            else if (category === '美食伴手禮') badge.className = 'inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700';
-            else badge.className = 'inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700';
+            let badgeClass = 'inline-flex items-center px-3 py-1 rounded-full text-xs font-bold shadow-sm border border-gray-100 ';
+            if (category === '美妝藥妝') badgeClass += 'bg-pink-50 text-pink-600';
+            else if (category === '服飾穿搭') badgeClass += 'bg-indigo-50 text-indigo-600';
+            else if (category === '美食伴手禮') badgeClass += 'bg-amber-50 text-amber-600';
+            else badgeClass += 'bg-emerald-50 text-emerald-600';
+            badge.className = badgeClass;
 
             const tagsHtml = tags.split(',').map(tag => 
-                `<span class="bg-black/30 text-white text-xs px-2 py-1 rounded backdrop-blur-md border border-white/20">#${tag}</span>`
+                `<span class="bg-black/30 text-white text-xs px-2 py-1 rounded backdrop-blur-md border border-white/20 font-medium">#${tag}</span>`
             ).join('');
             document.getElementById('modal-tags').innerHTML = tagsHtml;
 
@@ -1160,13 +1258,29 @@
             }, 300);
         }
 
-        window.onload = function() {
-            renderItems();
-        };
+        // 切換購買狀態
+        function toggleBoughtState() {
+            if (boughtItems.includes(currentModalTitle)) {
+                boughtItems = boughtItems.filter(item => item !== currentModalTitle);
+            } else {
+                boughtItems.push(currentModalTitle);
+            }
+            localStorage.setItem('boughtItems', JSON.stringify(boughtItems));
+            updateModalButtonState();
+            renderItems(); // 重新渲染列表以更新狀態
+        }
+
+        // 更新 Modal 按鈕文字
+        function updateModalButtonState() {
+            const btn = document.getElementById('modal-action-btn');
+            if (boughtItems.includes(currentModalTitle)) {
+                btn.innerHTML = '<i class="fa-solid fa-rotate-left"></i> 取消標記 (未買)';
+                btn.className = "w-full py-4 rounded-2xl text-sm font-bold shadow-xl active:scale-[0.98] transition flex items-center justify-center gap-2 bg-gray-200 text-gray-700 hover:bg-gray-300";
+            } else {
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> 標記為已買 / 已去';
+                btn.className = "w-full py-4 rounded-2xl text-sm font-bold shadow-xl active:scale-[0.98] transition flex items-center justify-center gap-2 bg-gray-900 text-white hover:bg-gray-800";
+            }
+        }
     </script>
 </body>
 </html>
-
-
-
-
