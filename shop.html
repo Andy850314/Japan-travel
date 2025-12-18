@@ -1,9 +1,9 @@
-        <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>日本購物與旅遊清單 APP</title>
+    <title>日本購物與旅遊清單 APP (細分類版)</title>
     <!-- 載入 Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
@@ -33,17 +33,17 @@
         }
 
         .card-img {
-            height: 200px; /* 固定高度，確保版面整齊 */
+            height: 200px;
             object-fit: cover;
             object-position: center;
             width: 100%;
             display: block;
             transition: transform 0.3s ease;
-            background-color: #e2e8f0; /* 圖片載入前的背景色 */
+            background-color: #e2e8f0;
         }
         
         .card:hover .card-img {
-            transform: scale(1.03); /* 懸停時輕微放大 */
+            transform: scale(1.03);
         }
 
         /* ★ 已購買/已完成的樣式 */
@@ -51,7 +51,7 @@
             position: relative;
         }
         .card.is-bought .card-img {
-            filter: grayscale(100%); /* 變黑白 */
+            filter: grayscale(100%);
             opacity: 0.7;
         }
         .card.is-bought::after {
@@ -96,7 +96,7 @@
             filter: drop-shadow(0 2px 4px rgba(236, 72, 153, 0.3));
         }
 
-        /* 讓 Modal 內的文字可以換行 */
+        /* Modal */
         .whitespace-pre-line {
             white-space: pre-line;
         }
@@ -116,6 +116,34 @@
             opacity: 1;
             transform: translateY(0);
             pointer-events: auto;
+        }
+
+        /* 隱藏滾動條但保留功能 (for sub-nav) */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* 子分類按鈕樣式 */
+        .sub-nav-btn {
+            white-space: nowrap;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            border: 1px solid #e2e8f0;
+            background-color: white;
+            color: #64748b;
+        }
+        .sub-nav-btn.active {
+            background-color: #ec4899;
+            color: white;
+            border-color: #ec4899;
+            box-shadow: 0 2px 5px rgba(236, 72, 153, 0.3);
         }
     </style>
 </head>
@@ -151,12 +179,24 @@
             
             <!-- 1. 美妝藥妝 -->
             <section id="beauty" class="tab-content active">
-                <div class="flex items-center mb-3 px-1 sticky top-[130px] z-30 py-2 bg-slate-50/95 backdrop-blur-sm transition-all duration-300">
-                    <span class="w-1.5 h-5 bg-pink-500 rounded-full mr-2 shadow-sm"></span>
-                    <h2 class="text-lg font-bold text-gray-800">美妝 & 藥妝</h2>
+                <div class="sticky top-[130px] z-30 bg-slate-50/95 backdrop-blur-sm pt-2 pb-1 transition-all duration-300">
+                    <div class="flex items-center mb-2 px-1">
+                        <span class="w-1.5 h-5 bg-pink-500 rounded-full mr-2 shadow-sm"></span>
+                        <h2 class="text-lg font-bold text-gray-800">美妝 & 藥妝</h2>
+                    </div>
+                    
+                    <!-- ★ 新增：美妝子分類導航 -->
+                    <div class="flex overflow-x-auto gap-2 pb-2 mb-1 no-scrollbar px-1" id="beauty-sub-nav">
+                        <button onclick="setBeautyFilter('all')" class="sub-nav-btn active" data-filter="all">全部</button>
+                        <button onclick="setBeautyFilter('medicine')" class="sub-nav-btn" data-filter="medicine">💊 藥膏/眼藥水/牙膏</button>
+                        <button onclick="setBeautyFilter('skincare')" class="sub-nav-btn" data-filter="skincare">✨ 保養/面膜</button>
+                        <button onclick="setBeautyFilter('hair')" class="sub-nav-btn" data-filter="hair">💇‍♀️ 頭髮護理</button>
+                        <button onclick="setBeautyFilter('makeup')" class="sub-nav-btn" data-filter="makeup">💄 彩妝</button>
+                    </div>
                 </div>
+
                 <!-- RWD 網格：手機單欄，中螢幕雙欄 -->
-                <div id="beauty-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                <div id="beauty-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2"></div>
             </section>
 
             <!-- 2. 服飾穿搭 -->
@@ -231,7 +271,6 @@
         <div class="fixed inset-0 flex items-center justify-center p-4 pointer-events-none">
             <div class="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl transform transition-all scale-95 opacity-0 pointer-events-auto flex flex-col max-h-[85vh]" id="modal-panel">
                 <div class="relative h-64 shrink-0 bg-gray-100">
-                    <!-- ★ 圖片防呆：onerror 屬性會在圖片載入失敗時觸發 -->
                     <img id="modal-img" src="" alt="" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/600x400/e2e8f0/64748b?text=No+Image'">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
                     <button onclick="closeModal()" class="absolute top-4 right-4 bg-white/20 hover:bg-white/40 text-white rounded-full p-2 w-9 h-9 flex items-center justify-center backdrop-blur-md border border-white/30 z-10 transition-transform hover:scale-110">
@@ -244,12 +283,10 @@
                 </div>
                 <div class="p-6 overflow-y-auto">
                     <div class="flex flex-col gap-3 mb-6">
-                        <!-- 類別標籤 -->
                         <div class="flex items-center gap-2">
                             <span id="modal-category-badge" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold shadow-sm"></span>
                         </div>
                         
-                        <!-- ★ Google Maps 導航按鈕 -->
                         <div class="bg-gray-50 p-3 rounded-lg border-l-4 border-pink-500 shadow-sm flex justify-between items-center">
                             <div>
                                 <p class="text-xs text-gray-500 font-bold mb-1 uppercase tracking-wider">WHERE TO BUY</p>
@@ -265,9 +302,7 @@
                         <p id="modal-desc"></p>
                     </div>
                     
-                    <!-- ★ 狀態切換按鈕 -->
                     <button id="modal-action-btn" class="w-full py-4 rounded-xl text-sm font-bold shadow-lg active:scale-[0.98] transition flex items-center justify-center gap-2" onclick="toggleBoughtState()">
-                        <!-- JS 動態填入 -->
                     </button>
                 </div>
             </div>
@@ -275,51 +310,57 @@
     </div>
 
     <script>
-        // 資料庫：您整理的完整圖片路徑與資料
+        // 資料庫：增加了 subcategory 欄位 (medicine, hair, skincare, makeup)
         const items = [
             // === 美妝藥妝 (Beauty) ===
             { 
                 category: 'beauty', 
+                subcategory: 'medicine', // 藥膏/眼藥水
                 title: '第一三共 Clean Dental 牙膏全系列', 
                 location: '📍 各大藥妝店 (松本清、大國、SunDrug)',
-                desc: '針對不同口腔問題的專業護理牙膏：\n\n🔴 紅色 (經典全效)：針對牙齦腫脹、出血及牙周病預防。味道帶鹹味。\n🟢 綠色 (敏感護理)：溫和護理，防冷熱酸痛刺激。\n🟡 黃色 (口臭護理)：檸檬清香，針對口臭護理與牙菌斑防護。\n🩷 粉色 (美白護理)：去除牙漬、咖啡漬、茶漬。\n🔵 藍色 (無研磨劑)：凝膠狀，適合電動牙刷或極敏感牙齒。\n\n💡 牙周病軟膏：紅色小條管狀，直接塗抹在紅腫牙齦上。', 
+                desc: '針對不同口腔問題的專業護理牙膏：\n\n🔴 紅色 (經典全效)：針對牙齦腫脹、出血及牙周病預防。\n🟢 綠色 (敏感護理)：溫和護理，防冷熱酸痛刺激。\n🟡 黃色 (口臭護理)：檸檬清香，針對口臭護理與牙菌斑防護。\n🩷 粉色 (美白護理)：去除牙漬、咖啡漬、茶漬。\n🔵 藍色 (無研磨劑)：凝膠狀，適合電動牙刷或極敏感牙齒。', 
                 tags: ['牙膏', '必買', '牙周病'], 
                 img: 'image/clean.jpg' 
             },
             { 
                 category: 'beauty', 
+                subcategory: 'hair', // 頭髮
                 title: 'hiritu 平衡修護洗髮精 (Aurora 極光限定版)', 
                 location: '📍 日本各大藥妝店 / Loft / Plaza (髮品區)',
-                desc: '主打頭髮的黃金比例蛋白質修護，這款是「Aurora 極光」限定版，包裝是唯美的藍紫漸層。貼紙特別標示含「鑽石級光澤成分」，專救無光澤的受損髮，洗完頭髮會自帶天使光圈，香氣通常為限定的果香調（如西洋梨與麝香）。', 
+                desc: '主打頭髮的黃金比例蛋白質修護，這款是「Aurora 極光」限定版，專救無光澤的受損髮，洗完頭髮會自帶天使光圈。', 
                 tags: ['洗髮精', '護髮', '日本藥妝'], 
                 img: 'image/hiritu_aurora_shampoo.jpg' 
             },
             { 
                 category: 'beauty', 
+                subcategory: 'hair', // 頭髮
                 title: 'hiritu 平衡修護護髮油 (Smooth 柔順型)', 
                 location: '📍 日本各大藥妝店 / Loft / Plaza (髮品區)',
-                desc: '主打頭髮的黃金比例（80%蛋白質+15%水分+5%油分），這款「Smooth 柔順型」專為毛躁、自然捲髮質設計。質地輕盈不黏膩，洗完頭擦半乾抹在髮尾再吹乾，頭髮會變得很乖很順。香氣是清新的「西洋梨&麝香」。', 
+                desc: '主打頭髮的黃金比例，「Smooth 柔順型」專為毛躁、自然捲髮質設計。質地輕盈不黏膩。', 
                 tags: ['護髮油', '免沖洗', '日本藥妝', '受損髮'], 
                 img: 'image/hiritu_hair_oil_smooth.jpg' 
             },
             { 
                 category: 'beauty', 
-                title: 'hiritu 平衡修護精華髮霧 (Balance Repair Serum Mist)', 
+                subcategory: 'hair', // 頭髮
+                title: 'hiritu 平衡修護精華髮霧', 
                 location: '📍 日本各大藥妝店 / Loft / Plaza',
-                desc: '號稱「噴霧+護髮油」的二合一神物！採用油水雙層配方（使用前要搖一搖），兼具噴霧的滲透力與髮油的鎖水光澤。早上起床噴可以撫平毛躁，晚上吹髮前噴可以抗熱。藍瓶是柔順型（西洋梨香），粉瓶是保濕型（杏桃茉莉香）。', 
+                desc: '號稱「噴霧+護髮油」的二合一神物！早上起床噴可以撫平毛躁，晚上吹髮前噴可以抗熱。', 
                 tags: ['髮妝水', '護髮噴霧', '抗熱', '懶人護髮'], 
                 img: 'image/hiritu_serum_mist.jpg' 
             },
             { 
                 category: 'beauty', 
+                subcategory: 'medicine', // 藥膏/眼藥水
                 title: 'Rohto Lycee Glow 抗疲勞眼藥水', 
                 location: '📍 日本各大藥妝店 (眼藥水區)',
-                desc: '裸眼、隱形眼鏡皆可使用的高階款。富含維他命B12、角膜修護成分硫酸軟骨素鈉，以及舒緩睫狀肌疲勞的成分，且濃度均為行業基準內最高，適合長時間用眼者。', 
+                desc: '裸眼、隱形眼鏡皆可使用的高階款。富含維他命B12，適合長時間用眼者。', 
                 tags: ['眼藥水', '抗疲勞', 'Lycee', '裸眼/隱眼皆可'], 
                 img: 'image/Rohto_Lycee_Glow.jpg' 
             },
             { 
                 category: 'beauty', 
+                subcategory: 'medicine', // 藥膏/眼藥水
                 title: '獅王祛痘膏、資生堂護唇膏、小林私密止癢膏', 
                 location: '📍 日本各大藥妝店',
                 desc: '實用藥膏', 
@@ -328,6 +369,7 @@
             },
             { 
                 category: 'beauty', 
+                subcategory: 'medicine', // 藥膏/眼藥水
                 title: '千壽眼藥水', 
                 location: '📍 各大藥妝店 (眼藥水區)',
                 desc: '專為隱形眼鏡族設計，共有四種不同清涼度。能消除戴隱眼時的不適與乾澀，裸眼亦可使用。', 
@@ -336,14 +378,16 @@
             },
             { 
                 category: 'beauty', 
+                subcategory: 'skincare', // 保養
                 title: 'Attenir 艾天然油卸妝油', 
                 location: '📍 @cosme TOKYO 原宿旗艦店',
-                desc: '榮獲年度綜合大賞冠軍的卸妝油。被譽為 CP 值之王，主打去黃提亮功能。由於一般藥妝店較少見，建議前往原宿旗艦店購買。', 
+                desc: '榮獲年度綜合大賞冠軍的卸妝油。被譽為 CP 值之王，主打去黃提亮功能。', 
                 tags: ['卸妝油', 'Attenir', '年度冠軍'], 
                 img: 'image/Attenir.jpg' 
             },
             { 
                 category: 'beauty', 
+                subcategory: 'makeup', // 彩妝
                 title: '資生堂精華液粉底', 
                 location: '📍 日本各大藥妝店 / 百貨',
                 desc: '養膚型粉底天花板。強調上妝等於保養，能打造出原生水光肌與極美的光澤感。', 
@@ -352,6 +396,7 @@
             },
             { 
                 category: 'beauty', 
+                subcategory: 'skincare', // 保養
                 title: 'LULULUN面膜', 
                 location: '📍 日本各大藥妝店',
                 desc: '發出斷貨預警的 Hydra V 面膜。成分包含外泌體與穀胱甘肽，主打讓肌膚亮、彈、白。', 
@@ -360,6 +405,7 @@
             },
             { 
                 category: 'beauty', 
+                subcategory: 'makeup', // 彩妝
                 title: 'KANEBO 唇膏', 
                 location: '📍 日本各大藥妝店 / 百貨',
                 desc: '唇膏界的新霸主，主打有生命力的動態水澤感。熱門缺貨色號為 V02 與 V07。', 
@@ -368,47 +414,53 @@
             },
             { 
                 category: 'beauty', 
+                subcategory: 'hair', // 頭髮
                 title: 'ORBIS免沖洗護髮乳', 
                 location: '📍 @cosme TOKYO 原宿旗艦店',
-                desc: '免沖洗護髮乳中的黑馬。質地為清爽不黏膩的水乳狀，價格親民且吹乾後頭髮輕盈柔順。建議至原宿旗艦店找尋。', 
+                desc: '免沖洗護髮乳中的黑馬。質地為清爽不黏膩的水乳狀，價格親民且吹乾後頭髮輕盈柔順。', 
                 tags: ['護髮乳', 'ORBIS', '免沖洗'], 
                 img: 'image/IMG_2349.jpg' 
             },
             { 
                 category: 'beauty', 
+                subcategory: 'medicine', // 藥膏
                 title: 'KOSE痘痘貼', 
                 location: '📍 日本各大藥妝店 (藥品/護膚區)',
-                desc: '高絲高人氣「對不起素肌」系列推出的痘痘貼。主打極高貼合度且非常隱形，能保護患部免受外部刺激，甚至可以帶妝使用。一包內含 8mm、10mm、12mm 三種尺寸共 46 枚，能有效遮蓋痘痘跡。', 
+                desc: '高絲高人氣「對不起素肌」系列推出的痘痘貼。主打極高貼合度且非常隱形。', 
                 tags: ['痘痘貼', '高絲', '日本藥妝', '隱形遮瑕'], 
                 img: 'image/IMG_2347.jpg' 
             },
             { 
                 category: 'beauty', 
+                subcategory: 'medicine', // 藥膏/口腔
                 title: '齒磨堂 (Hamigaki Do) 牙膏系列', 
                 location: '📍 Loft、唐吉訶德、部分大型藥妝店',
-                desc: '職人級的高級牙膏系列：\n\n⚪ 白色 (極致淨白)：含有兩倍美白成分，溫和去除牙漬，修復琺瑯質。\n🟢 綠色 (頂級去垢)：含5種藥用成分，對應口臭、牙齦問題。吃完大蒜刷它超有效！\n🟣 紫色 (璀璨淨白)：含3倍美白成分，針對重度茶漬、咖啡漬、紅酒漬。', 
+                desc: '職人級的高級牙膏系列，針對不同口腔問題設計。', 
                 tags: ['牙膏', '職人', '美白'], 
                 img: 'image/齒磨堂.jpg' 
             },
             { 
                 category: 'beauty', 
+                subcategory: 'medicine', // 藥膏
                 title: 'Zero痘痘貼', 
                 location: '📍 日本各大藥妝店',
-                desc: 'Today\'s Cosme 推出的 Zero spot patch 痘痘貼。主打防水、透氣且極致服貼，能保護患部免受水與外氣刺激。成分含有維他命 E、維他命 C 誘導體及銀。貼上後非常隱形，甚至可以直接在上方上妝。一包共有 54 枚入，含 10mm 與 12mm 兩種尺寸。', 
+                desc: '主打防水、透氣且極致服貼，能保護患部免受水與外氣刺激。', 
                 tags: ['痘痘貼', '藥妝', '防水'], 
                 img: 'image/IMG_2346.jpg' 
             },
             { 
                 category: 'beauty', 
-                title: '小林製藥 扁桃腺噴霧 (Harenasu)', 
+                subcategory: 'medicine', // 藥膏
+                title: '小林製藥 扁桃腺噴霧', 
                 location: '📍 各大藥妝店 (藥品區)',
-                desc: '喉嚨痛救星！喉嚨卡卡、吞嚥困難時直接噴患部，涼感速效，隔天好轉很多。', 
+                desc: '喉嚨痛救星！喉嚨卡卡、吞嚥困難時直接噴患部，涼感速效。', 
                 tags: ['藥品', '喉嚨'], 
                 img: 'image/小林製藥扁桃腺噴霧.jpg' 
             },
             { 
                 category: 'beauty', 
-                title: 'Kowa 鼻炎膠捲 (Marshmallow)', 
+                subcategory: 'medicine', // 藥膏
+                title: 'Kowa 鼻炎膠捲', 
                 location: '📍 各大藥妝店 (鼻炎藥區)',
                 desc: '放在舌上融化的藍色薄膜，隨身攜帶方便，號稱快速停止流鼻水的神器。', 
                 tags: ['藥品', '鼻炎'], 
@@ -416,70 +468,79 @@
             },
             { 
                 category: 'beauty', 
+                subcategory: 'medicine', // 藥膏
                 title: 'Zukkinon 塗抹式頭痛藥膏', 
                 location: '📍 各大藥妝店 (痠痛貼布/藥品區)',
-                desc: '塗抹式藥膏，像護唇膏一樣轉出來，專治肩頸僵硬引起的頭痛，塗在肩膀脖子上。', 
+                desc: '塗抹式藥膏，像護唇膏一樣轉出來，專治肩頸僵硬引起的頭痛。', 
                 tags: ['藥品', '痠痛'], 
                 img: 'image/Zukkinon塗抹式頭痛藥膏.jpg' 
             },
             { 
                 category: 'beauty', 
+                subcategory: 'medicine', // 藥膏/保養
                 title: 'Nature Conc腳跟修復膏', 
                 location: '📍 日本各大藥妝店 (足部護理區)',
-                desc: 'Nature Conc 推出的藥用修復膏，專門預防皮膚龜裂、凍傷及乾燥。成分中含有尿素配合，能有效軟化角質並深度滋潤。網友分享其效果非常驚人，但目前在實體店面極其難找。', 
+                desc: 'Nature Conc 推出的藥用修復膏，專門預防皮膚龜裂、凍傷及乾燥。含尿素成分。', 
                 tags: ['腳跟修復', 'NatureConc', '尿素'], 
                 img: 'image/IMG_2345.jpg' 
             },
             { 
                 category: 'beauty', 
-                title: '腳後跟保濕護理襪 (Kakato-chan)', 
+                subcategory: 'skincare', // 保養
+                title: '腳後跟保濕護理襪', 
                 location: '📍 藥妝店 (足部護理區)',
-                desc: '睡覺時穿著，內含保濕成分，改善腳跟乾裂粗糙，隔天變超嫩。', 
+                desc: '睡覺時穿著，內含保濕成分，改善腳跟乾裂粗糙。', 
                 tags: ['保養', '足部'], 
                 img: 'image/腳後跟保濕護理襪 (Kakato-chan).jpg' 
             },
             { 
                 category: 'beauty', 
+                subcategory: 'medicine', // 藥膏
                 title: '小林製藥 腳跟修護棒', 
                 location: '📍 日本各大藥妝店 (足部護理區)',
-                desc: '小林製藥出品的腳跟修護棒。採用不沾手設計，方便直接塗抹於乾燥龜裂的腳後跟。網友強烈推薦擦完後穿上襪子睡覺，具有超級顯著的修復效果，且價格親民僅需幾百元。', 
+                desc: '小林製藥出品的腳跟修護棒。採用不沾手設計，方便直接塗抹於乾燥龜裂的腳後跟。', 
                 tags: ['腳跟修復', '小林製藥', '日本藥妝', '保濕'], 
                 img: 'image/IMG_2343.jpg' 
             },
             { 
                 category: 'beauty', 
+                subcategory: 'medicine', // 藥膏
                 title: '曼秀雷敦 EXIV 香港腳治療止癢', 
                 location: '📍 日本各大藥妝店 (藥品區)',
-                desc: '曼秀雷敦 EXIV EX 系列軟膏，主打一日一次即可有效滲透殺菌、止癢並除臭。這款粉藍包裝是針對女性或一般肌膚設計的新處方，網購參考價格約為 323 元台幣。', 
+                desc: '主打一日一次即可有效滲透殺菌、止癢並除臭。', 
                 tags: ['藥品', '香港腳', '曼秀雷敦', '止癢'], 
                 img: 'image/IMG_2341.jpg' 
             },
             { 
                 category: 'beauty', 
+                subcategory: 'medicine', // 藥膏
                 title: '老爺爺 痠痛滾珠瓶', 
                 location: '📍 日本各大藥妝店 (痠痛貼布/藥品區)',
-                desc: '日本超紅的老爺爺酸痛貼布品牌推出的滾珠瓶新包裝。瓶口採用獨特的三顆金屬滾珠設計，方便在塗抹藥膏的同時進行穴道按摩，使用感非常舒適。針對肩膀酸痛有明顯的改善效果，是近期熱門的日本必買清單之一。', 
+                desc: '瓶口採用獨特的三顆金屬滾珠設計，方便在塗抹藥膏的同時進行穴道按摩。', 
                 tags: ['酸痛', '老爺爺', '滾珠瓶', '日本藥妝'], 
                 img: 'image/IMG_2342.jpg' 
             },
             { 
                 category: 'beauty', 
+                subcategory: 'skincare', // 保養
                 title: 'Quality 1st 眼膜 (紅色)', 
                 location: '📍 藥妝店、唐吉訶德',
-                desc: 'Derma Laser Super VC+Retinol (紅色包裝)，針對眼周細紋、黑眼圈，緊緻效果好。', 
+                desc: '針對眼周細紋、黑眼圈，緊緻效果好。', 
                 tags: ['面膜', '抗老'], 
                 img: 'image/Quality 1st 眼膜 (紅色).jpg' 
             },
             { 
                 category: 'beauty', 
+                subcategory: 'skincare', // 保養
                 title: 'PDC 酒粕面膜', 
                 location: '📍 藥妝店、唐吉訶德、Loft',
-                desc: '熊本河津酒造酒粕使用，洗掉後皮膚像豆腐一樣嫩滑，去黃提亮效果驚人。', 
+                desc: '熊本河津酒造酒粕使用，洗掉後皮膚像豆腐一樣嫩滑。', 
                 tags: ['面膜', '美白'], 
                 img: 'image/PDC 酒粕面膜.jpg' 
             },
             { 
                 category: 'beauty', 
+                subcategory: 'skincare', // 保養
                 title: '毛穴小町 面膜', 
                 location: '📍 藥妝店',
                 desc: '綠色包裝，針對毛孔粗大、角質護理。', 
@@ -488,14 +549,16 @@
             },
             { 
                 category: 'beauty', 
+                subcategory: 'skincare', // 保養
                 title: '怡麗絲爾 (ELIXIR) 晚安凍膜', 
                 location: '📍 藥妝店 (資生堂櫃)、百貨專櫃',
-                desc: '睡前塗抹，針對毛孔粗大，早上起來皮膚平滑。有原味和限定香味。', 
+                desc: '睡前塗抹，針對毛孔粗大，早上起來皮膚平滑。', 
                 tags: ['保養', '毛孔'], 
                 img: 'image/怡麗絲爾 (ELIXIR) 晚安凍膜.jpg' 
             },
             { 
                 category: 'beauty', 
+                subcategory: 'skincare', // 保養
                 title: 'IHADA 藥用乳液', 
                 location: '📍 藥妝店 (敏感肌專區)',
                 desc: '資生堂旗下，高精製凡士林配合，保濕修復力強，換季敏感肌大推。', 
@@ -504,14 +567,16 @@
             },
             { 
                 category: 'beauty', 
+                subcategory: 'makeup', // 彩妝
                 title: 'CEZANNE 藍色飾底乳 & 遮瑕', 
                 location: '📍 藥妝店 (CEZANNE 開架)',
-                desc: '05號藍色飾底乳：提亮效果比舊款更清透，改善暗沉蠟黃。\n02號遮瑕膏：質地滋潤不卡紋。', 
+                desc: '05號藍色飾底乳：提亮效果比舊款更清透，改善暗沉蠟黃。', 
                 tags: ['彩妝', '平價'], 
                 img: 'image/CEZANNE 藍色飾底乳 & 遮瑕.jpg' 
             },
             { 
                 category: 'beauty', 
+                subcategory: 'makeup', // 彩妝
                 title: 'Excel 精華遮瑕液', 
                 location: '📍 藥妝店、Loft、Plaza',
                 desc: '質地滋潤不卡紋，遮蓋力好，網友推薦 02 號色。', 
@@ -520,22 +585,25 @@
             },
             { 
                 category: 'beauty', 
+                subcategory: 'makeup', // 彩妝
                 title: 'Biore 補妝吸油面紙', 
                 location: '📍 藥妝店、便利商店',
-                desc: '紫色/紅色包裝，含有化妝水成分，吸油同時補妝，按壓後妝容服貼。', 
+                desc: '含有化妝水成分，吸油同時補妝，按壓後妝容服貼。', 
                 tags: ['工具', '補妝'], 
                 img: 'image/Biore 補妝吸油面紙.jpg' 
             },
             { 
                 category: 'beauty', 
+                subcategory: 'skincare', // 保養
                 title: 'Wrinkle Double 精華棒', 
                 location: '📍 藥妝店',
-                desc: '粉色棒狀，針對眼下細紋、黑眼圈的保濕精華棒，帶妝也能用，隨時補水。', 
+                desc: '粉色棒狀，針對眼下細紋、黑眼圈的保濕精華棒，帶妝也能用。', 
                 tags: ['保養', '急救'], 
                 img: 'image/Wrinkle Double 精華棒.jpg' 
             },
             { 
                 category: 'beauty', 
+                subcategory: 'skincare', // 保養
                 title: 'Sofina iP 去黑頭凝膠', 
                 location: '📍 藥妝店 (Sofina 櫃)',
                 desc: '黑色軟管，洗完臉後針對黑頭粉刺按摩，近期熱門新品。', 
@@ -544,7 +612,8 @@
             },
             { 
                 category: 'beauty', 
-                title: '小林製藥 口氣清新丸 (Breath Care)', 
+                subcategory: 'medicine', // 藥膏/口氣
+                title: '小林製藥 口氣清新丸', 
                 location: '📍 藥妝店 (口腔護理區)、便利商店',
                 desc: '吞服型膠囊，從胃部去除食物異味（如大蒜味）。', 
                 tags: ['藥品', '口氣'], 
@@ -552,15 +621,17 @@
             },
             { 
                 category: 'beauty', 
-                title: 'UHA味覺糖 保健食品 (Gummy Supple)', 
+                subcategory: 'medicine', // 保健食品
+                title: 'UHA味覺糖 保健食品', 
                 location: '📍 藥妝店、唐吉訶德',
-                desc: '軟糖形式好吃又有效。\n💜 紫色：鐵 & 葉酸 (防貧血)\n💛 黃色：維他命C', 
+                desc: '軟糖形式好吃又有效。紫色：鐵 & 葉酸；黃色：維他命C。', 
                 tags: ['保健', '軟糖'], 
                 img: 'image/UHA味覺糖 保健食品 (Gummy Supple).jpg' 
             },
             { 
                 category: 'beauty', 
-                title: 'Svelty 分解酵母 (Pakkun)', 
+                subcategory: 'medicine', // 保健食品
+                title: 'Svelty 分解酵母', 
                 location: '📍 藥妝店 (減肥保健區)',
                 desc: '吃大餐前吃，幫助分解澱粉糖分，消水腫。', 
                 tags: ['保健', '瘦身'], 
@@ -568,6 +639,7 @@
             },
             { 
                 category: 'beauty', 
+                subcategory: 'medicine', // 口腔/工具
                 title: '濃密極細毛牙刷', 
                 location: '📍 藥妝店 (牙刷區)',
                 desc: '刷毛如雲朵般柔軟，深入齒縫，觸感超神奇。', 
@@ -576,6 +648,7 @@
             },
             { 
                 category: 'beauty', 
+                subcategory: 'makeup', // 彩妝
                 title: 'CANMAKE 心形蜜粉 (限定款)', 
                 location: '📍 藥妝店、Loft',
                 desc: '限定壓紋款，粉色提氣色，藍色提亮。外殼超可愛。', 
@@ -584,6 +657,7 @@
             },
             { 
                 category: 'beauty', 
+                subcategory: 'hair', // 頭髮
                 title: 'ReFa 銀座店', 
                 location: '📍 ReFa銀座精品店、GINZA SIX、部分百貨',
                 desc: '推薦新品捲髮棒、直髮夾、愛心梳（有銀座限定色）。', 
@@ -592,6 +666,7 @@
             },
             { 
                 category: 'beauty', 
+                subcategory: 'hair', // 頭髮
                 title: 'SHIRO 香氛系列', 
                 location: '📍 澀谷 Scramble Square、表參道、部分百貨',
                 desc: '白百合髮油、柚子保濕噴霧、皂香身體乳。味道高級，像大小姐身上的味道。', 
@@ -600,6 +675,7 @@
             },
             { 
                 category: 'beauty', 
+                subcategory: 'hair', // 頭髮
                 title: '&honey 瀏海定型棒', 
                 location: '📍 藥妝店、Loft',
                 desc: '像睫毛膏一樣的刷頭，整理碎髮神器，不會讓頭髮變硬條狀。', 
@@ -608,6 +684,7 @@
             },
             { 
                 category: 'beauty', 
+                subcategory: 'makeup', // 彩妝
                 title: 'KissMe 睫毛卸除液', 
                 location: '📍 藥妝店 (彩妝區)',
                 desc: '淺藍色管身，刷在睫毛上即可輕鬆卸除強力防水睫毛膏，不熏眼。', 
@@ -616,6 +693,7 @@
             },
             { 
                 category: 'beauty', 
+                subcategory: 'skincare', // 保養
                 title: 'Kanebo 舒適洗顏皂霜', 
                 location: '📍 藥妝店 (Kanebo櫃)、百貨專櫃',
                 desc: 'Comfort Stretchy Wash，黑色軟管，牽絲質地，洗完不乾澀。', 
@@ -624,6 +702,7 @@
             },
             { 
                 category: 'beauty', 
+                subcategory: 'hair', // 頭髮
                 title: 'Yoroshi 化妝堂 (護髮油)', 
                 location: '📍 淺草仲見世通',
                 desc: '必買護髮油、護手霜，有365種生日花紋包裝，適合送禮。', 
@@ -782,7 +861,7 @@
                 category: 'food', 
                 title: 'Ivorish', 
                 location: '📍 東京車站 B1 改札內 (GRANSTA 東京)',
-                desc: '這款迷你法式吐司費南雪位於東京車站 B1 改札內的 GRANSTA 東京丸之內坂區域。售價為 6 個入 1188 日幣。營業時間為 08:00 至 22:00（週日與例假日僅到 21:00）。', 
+                desc: '這款迷你法式吐司費南雪位於東京車站 B1 改札內的 GRANSTA 東京丸之內坂區域。', 
                 tags: ['東京車站', '伴手禮', '費南雪'], 
                 img: 'image/IMG_2348.jpg' 
             },
@@ -1160,7 +1239,7 @@
                 category: 'travel', 
                 title: '原宿店', 
                 location: '📍 @cosme TOKYO (原宿)',
-                desc: '@cosme 原宿旗艦店是日本美妝新地標。提供豐富的限定商品與活動，體驗店鋪空間非常吸引人。', 
+                desc: '@cosme 原宿旗艦店是日本美妝新地標。', 
                 tags: ['旗艦店', '日本旅遊', '美妝'], 
                 img: 'image/cosme.jpg' 
             },
@@ -1240,7 +1319,7 @@
                 category: 'travel', 
                 title: 'Petio 寵物電暖墊', 
                 location: '📍 日本各大寵物用品店 / 大型藥妝店 / 驚安殿堂 (寵物區)',
-                desc: 'Petio 寵物專用電熱墊 ver.2.0，具備兩面溫度設計（低溫約 32°C、高溫約 39°C），可依環境切換使用。電線有金屬管包覆防止啃咬，且表面防潑水方便清潔。S 號售價約 3,980 日幣，M 號約 4,980 日幣。', 
+                desc: 'Petio 寵物專用電熱墊 ver.2.0。', 
                 tags: ['寵物用品', '保暖', 'Petio'], 
                 img: 'image/IMG_2344.jpg' 
             }
@@ -1248,6 +1327,9 @@
 
         let currentSearch = '';
         let boughtItems = JSON.parse(localStorage.getItem('boughtItems')) || [];
+        
+        // ★ 新增：目前美妝的子分類過濾器
+        let currentBeautyFilter = 'all';
 
         // 初始化
         window.onload = function() {
@@ -1264,6 +1346,23 @@
             });
         };
 
+        // ★ 新增：切換美妝子分類
+        function setBeautyFilter(filter) {
+            currentBeautyFilter = filter;
+            
+            // 更新按鈕樣式
+            document.querySelectorAll('#beauty-sub-nav .sub-nav-btn').forEach(btn => {
+                if (btn.getAttribute('data-filter') === filter) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            // 重新渲染
+            renderItems();
+        }
+
         function renderItems() {
             const categories = ['beauty', 'fashion', 'food', 'travel'];
             let totalVisible = 0;
@@ -1273,12 +1372,19 @@
             });
 
             items.forEach((item) => {
+                // 1. 搜尋過濾
                 const matchesSearch = item.title.toLowerCase().includes(currentSearch) || 
                                       item.desc.toLowerCase().includes(currentSearch) || 
                                       item.location.toLowerCase().includes(currentSearch) ||
                                       item.tags.some(t => t.toLowerCase().includes(currentSearch));
 
-                if (matchesSearch) {
+                // 2. 子分類過濾 (僅針對 beauty 類別)
+                let matchesSubCategory = true;
+                if (item.category === 'beauty' && currentBeautyFilter !== 'all') {
+                    matchesSubCategory = item.subcategory === currentBeautyFilter;
+                }
+
+                if (matchesSearch && matchesSubCategory) {
                     totalVisible++;
                     const isBought = boughtItems.includes(item.title);
                     const cardClass = isBought ? 'card is-bought' : 'card';
@@ -1287,7 +1393,6 @@
                         <div class="${cardClass} bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100 flex flex-col h-full cursor-pointer hover:shadow-md transition-shadow group"
                              onclick="openModal('${item.title}', '${item.desc.replace(/'/g, "\\'")}', '${item.img}', '${getCategoryName(item.category)}', '${item.location}', '${item.tags.join(',')}')">
                             <div class="card-img-container">
-                                <!-- 圖片防呆：onerror 屬性會在圖片載入失敗時觸發 -->
                                 <img src="${item.img}" alt="${item.title}" class="card-img" loading="lazy" onerror="this.onerror=null;this.src='https://placehold.co/600x400/e2e8f0/64748b?text=No+Image';">
                             </div>
                             <div class="p-4 flex-1 flex flex-col">
@@ -1311,10 +1416,15 @@
             let hasAnyContent = false;
             categories.forEach(cat => {
                 const list = document.getElementById(`${cat}-list`);
+                // 如果目前分頁有內容，標記為有內容
+                // 注意：這裡只檢查目前 active 的 tab 或者所有 tab 的內容狀態
+                // 為了簡單起見，我們檢查是否有任何卡片被渲染出來
                 if (list.children.length > 0) hasAnyContent = true;
             });
-
-            if (!hasAnyContent) {
+            
+            // 這裡的邏輯是：如果「當前」顯示的分頁沒有內容，則顯示無結果。
+            // 但因為 totalVisible 是算所有的，所以我們用 totalVisible 判斷最準確
+            if (totalVisible === 0) {
                 noResultsEl.classList.remove('hidden');
             } else {
                 noResultsEl.classList.add('hidden');
@@ -1355,7 +1465,7 @@
         let currentModalTitle = '';
 
         function openModal(title, desc, img, category, location, tags) {
-            currentModalTitle = title; // 儲存當前商品標題供 toggleBoughtState 使用
+            currentModalTitle = title;
             const modal = document.getElementById('modal');
             const panel = document.getElementById('modal-panel');
             
@@ -1365,7 +1475,7 @@
             document.getElementById('modal-category-badge').innerText = category;
             document.getElementById('modal-location-text').innerText = location;
             
-            // 更新 Google Maps 連結 (移除括號內容以提高搜尋準確度)
+            // 更新 Google Maps 連結
             const mapUrl = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(location.split('(')[0].replace('📍', '').trim()); 
             document.getElementById('modal-map-link').href = mapUrl;
 
@@ -1433,4 +1543,3 @@
     </script>
 </body>
 </html>
-
