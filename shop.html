@@ -33,7 +33,7 @@
         }
 
         .card-img {
-            height: 200px; /* 稍微增高讓圖片更清晰 */
+            height: 200px; /* 固定高度，確保版面整齊 */
             object-fit: cover;
             object-position: center;
             width: 100%;
@@ -46,8 +46,11 @@
             transform: scale(1.03); /* 懸停時輕微放大 */
         }
 
-        /* ★ 新增：已購買/已完成的樣式 */
-        .card.is-bought {
+        /* ★ 已購買/已完成的樣式 */
+        .card.is-bought .card-img-container {
+            position: relative;
+        }
+        .card.is-bought .card-img {
             filter: grayscale(100%); /* 變黑白 */
             opacity: 0.7;
         }
@@ -59,11 +62,13 @@
             transform: translate(-50%, -50%);
             background: rgba(0,0,0,0.7);
             color: white;
-            padding: 8px 16px;
+            padding: 6px 12px;
             border-radius: 20px;
             font-weight: bold;
+            font-size: 0.9rem;
             pointer-events: none;
             z-index: 10;
+            white-space: nowrap;
         }
 
         /* 底部導航欄 */
@@ -150,7 +155,7 @@
                     <span class="w-1.5 h-5 bg-pink-500 rounded-full mr-2 shadow-sm"></span>
                     <h2 class="text-lg font-bold text-gray-800">美妝 & 藥妝</h2>
                 </div>
-                <!-- 改為 RWD 網格：手機單欄，中螢幕雙欄 -->
+                <!-- RWD 網格：手機單欄，中螢幕雙欄 -->
                 <div id="beauty-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
             </section>
 
@@ -222,11 +227,11 @@
 
     <!-- Modal 詳情彈窗 -->
     <div id="modal" class="fixed inset-0 z-[60] hidden" role="dialog" aria-modal="true">
-        <div class="fixed inset-0 bg-gray-900/70 backdrop-blur-sm transition-opacity" onclick="closeModal()"></div>
+        <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" onclick="closeModal()"></div>
         <div class="fixed inset-0 flex items-center justify-center p-4 pointer-events-none">
             <div class="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl transform transition-all scale-95 opacity-0 pointer-events-auto flex flex-col max-h-[85vh]" id="modal-panel">
                 <div class="relative h-64 shrink-0 bg-gray-100">
-                    <!-- ★ 修正：加入圖片防呆 onerror，若路徑錯誤會顯示預設圖 -->
+                    <!-- ★ 圖片防呆：onerror 屬性會在圖片載入失敗時觸發 -->
                     <img id="modal-img" src="" alt="" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/600x400/e2e8f0/64748b?text=No+Image'">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
                     <button onclick="closeModal()" class="absolute top-4 right-4 bg-white/20 hover:bg-white/40 text-white rounded-full p-2 w-9 h-9 flex items-center justify-center backdrop-blur-md border border-white/30 z-10 transition-transform hover:scale-110">
@@ -244,7 +249,7 @@
                             <span id="modal-category-badge" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold shadow-sm"></span>
                         </div>
                         
-                        <!-- ★ 修正：加入 Google Maps 導航按鈕 -->
+                        <!-- ★ Google Maps 導航按鈕 -->
                         <div class="bg-gray-50 p-3 rounded-lg border-l-4 border-pink-500 shadow-sm flex justify-between items-center">
                             <div>
                                 <p class="text-xs text-gray-500 font-bold mb-1 uppercase tracking-wider">WHERE TO BUY</p>
@@ -260,7 +265,7 @@
                         <p id="modal-desc"></p>
                     </div>
                     
-                    <!-- ★ 修正：加入狀態切換按鈕 -->
+                    <!-- ★ 狀態切換按鈕 -->
                     <button id="modal-action-btn" class="w-full py-4 rounded-xl text-sm font-bold shadow-lg active:scale-[0.98] transition flex items-center justify-center gap-2" onclick="toggleBoughtState()">
                         <!-- JS 動態填入 -->
                     </button>
@@ -270,7 +275,7 @@
     </div>
 
     <script>
-        // 資料庫：保留您設定的圖片路徑
+        // 資料庫：您整理的完整圖片路徑與資料
         const items = [
             // === 美妝藥妝 (Beauty) ===
             { 
@@ -1216,8 +1221,8 @@
             document.getElementById('modal-category-badge').innerText = category;
             document.getElementById('modal-location-text').innerText = location;
             
-            // 更新 Google Maps 連結
-            const mapUrl = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(location.split('(')[0]); // 移除括號內容增加搜尋準確度
+            // 更新 Google Maps 連結 (移除括號內容以提高搜尋準確度)
+            const mapUrl = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(location.split('(')[0].replace('📍', '').trim()); 
             document.getElementById('modal-map-link').href = mapUrl;
 
             // 更新按鈕狀態
