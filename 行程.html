@@ -54,11 +54,9 @@
 <body class="bg-gray-100 min-h-screen">
 
     <!-- Header -->
-    <!-- 修改說明：移除 h-48 固定高度，改讓圖片撐開高度 -->
     <header class="relative bg-slate-800 text-white overflow-hidden">
         
         <!-- ★★★ 這裡換成您的圖片路徑 ★★★ -->
-        <!-- 修改說明：移除 absolute inset-0 h-full object-cover，改用 w-full h-auto 讓圖片完整顯示 -->
         <img src="image/title2.png" alt="Tokyo" class="w-full h-auto opacity-70 block">
         
         <!-- 增加一個漸層遮罩，確保文字清楚 -->
@@ -99,9 +97,6 @@
             </button>
             <button onclick="switchTab('day8')" id="btn-day8" class="flex-shrink-0 px-6 py-3 text-sm tab-inactive whitespace-nowrap transition-colors">
                 12/27<br><span class="text-xs font-normal">回程</span>
-            </button>
-             <button onclick="switchTab('railway')" id="btn-railway" class="flex-shrink-0 px-6 py-3 text-sm tab-inactive whitespace-nowrap transition-colors">
-                交通<br><span class="text-xs font-normal">攻略</span>
             </button>
         </div>
     </div>
@@ -150,7 +145,7 @@
 
             <!-- Noon -->
             <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-                <div class="bg-red-50 px-4 py-2 border-b font-bold text-red-700">午間：淺草晃晃</div>
+                <div class="bg-red-50 px-4 py-2 border-b font-bold text-red-700">午間：淺草散策</div>
                 <div class="p-4 space-y-3">
                     <p class="text-xs text-gray-400"><i class="fas fa-subway"></i> 淺草線: 人形町 → 淺草</p>
                     <div class="mb-2">
@@ -437,19 +432,28 @@
             </div>
         </div>
 
-        <!-- RAILWAY INFO -->
+        <!-- SHOPPING (iFrame) - Re-added as hidden content for FAB -->
+        <div id="shopping" class="hidden animate-fade-in h-[calc(100vh-200px)]">
+            <iframe src="https://andy850314.github.io/Japan-travel/shop.html" class="w-full h-full rounded-xl border border-gray-200" title="Shopping List"></iframe>
+            <div class="text-center mt-2">
+                <a href="https://andy850314.github.io/Japan-travel/shop.html" target="_blank" class="text-xs text-blue-500 underline">
+                    如果無法顯示，請點此開啟
+                </a>
+            </div>
+        </div>
+
+        <!-- RAILWAY INFO - Re-added as hidden content for FAB -->
         <div id="railway" class="space-y-6 hidden animate-fade-in">
             <div class="bg-indigo-600 text-white text-center py-4 rounded-xl shadow-lg mb-6">
                 <i class="fas fa-train text-4xl mb-2"></i>
-                <h2 class="text-xl font-bold">東京鐵路</h2>
+                <h2 class="text-xl font-bold">東京鐵路攻略</h2>
+                <p class="text-xs opacity-90">像在地人一樣搭車</p>
             </div>
 
             <!-- ★★★ 新增：鐵路路線圖 ★★★ -->
             <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-200">
                 <h3 class="font-bold text-gray-800 mb-3"><i class="fas fa-map text-indigo-500 mr-2"></i>東京鐵路網</h3>
                 <div class="overflow-hidden rounded-lg border border-gray-100">
-                    <!-- 這裡放了一張來自維基百科的東京地鐵圖作為範例 -->
-                    <!-- 如果您有特定的圖片網址，請替換下面的 src="..." -->
                     <img src="image/鐵路.png" alt="東京地鐵各站時間" class="w-full h-auto">
                     <img src="image/東京地圖.jpg" alt="東京地鐵各站時間" class="w-full h-auto">
                 </div>
@@ -495,6 +499,19 @@
 
     </div>
 
+    <!-- Floating Action Buttons -->
+    <div class="fixed bottom-6 right-6 flex flex-col gap-3 z-50">
+        <!-- Railway Button -->
+        <button onclick="switchTab('railway')" class="bg-indigo-600 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center hover:bg-indigo-700 transition-all active:scale-95" title="交通攻略">
+            <i class="fas fa-train text-xl"></i>
+        </button>
+        
+        <!-- Shopping Button -->
+        <button onclick="switchTab('shopping')" class="bg-red-600 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center hover:bg-red-700 transition-all active:scale-95" title="購物清單">
+            <i class="fas fa-shopping-cart text-xl"></i>
+        </button>
+    </div>
+
     <script>
         function switchTab(tabId) {
             // Check if element exists before accessing classList to prevent errors
@@ -505,7 +522,7 @@
             }
 
             // Hide all
-            const tabs = ['day1', 'day2', 'day3', 'day4', 'day5', 'day6', 'day7', 'day8', 'railway'];
+            const tabs = ['day1', 'day2', 'day3', 'day4', 'day5', 'day6', 'day7', 'day8', 'shopping', 'railway'];
             tabs.forEach(t => {
                 const el = document.getElementById(t);
                 if (el) el.classList.add('hidden');
@@ -515,7 +532,7 @@
             targetElement.classList.remove('hidden');
 
             // Reset buttons
-            const btns = ['btn-day1', 'btn-day2', 'btn-day3', 'btn-day4', 'btn-day5', 'btn-day6', 'btn-day7', 'btn-day8', 'btn-railway'];
+            const btns = ['btn-day1', 'btn-day2', 'btn-day3', 'btn-day4', 'btn-day5', 'btn-day6', 'btn-day7', 'btn-day8'];
             btns.forEach(id => {
                 const btn = document.getElementById(id);
                 if (btn) {
@@ -537,6 +554,3 @@
     </script>
 </body>
 </html>
-
-
-
