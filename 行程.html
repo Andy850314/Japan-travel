@@ -54,10 +54,16 @@
 <body class="bg-gray-100 min-h-screen">
 
     <!-- Header -->
-    <header class="relative h-48 bg-slate-800 text-white overflow-hidden">
-        <!-- ★★★ 在這裡修改封面圖片：請將 src="" 內的網址換成您想要的圖片連結 ★★★ -->
-        <img src="image/title.png" alt="Tokyo" class="absolute inset-0 w-full h-full object-cover opacity-60">
-        <div class="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent"></div>
+    <!-- 修改說明：移除 h-48 固定高度，改讓圖片撐開高度 -->
+    <header class="relative bg-slate-800 text-white overflow-hidden">
+        
+        <!-- ★★★ 這裡換成您的圖片路徑 ★★★ -->
+        <!-- 修改說明：移除 absolute inset-0 h-full object-cover，改用 w-full h-auto 讓圖片完整顯示 -->
+        <img src="image/title.png" alt="Tokyo" class="w-full h-auto opacity-70 block">
+        
+        <!-- 增加一個漸層遮罩，確保文字清楚 -->
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent"></div>
+        
         <div class="absolute bottom-0 left-0 p-4 w-full">
             <h1 class="text-2xl font-bold mb-1">東京 12/20 (六) - 12/27 (六)</h1>
             <div class="flex items-center gap-2 text-xs bg-black/30 backdrop-blur px-3 py-1.5 rounded-full inline-flex">
@@ -530,5 +536,4 @@
         }
     </script>
 </body>
-
 </html>
