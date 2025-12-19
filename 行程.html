@@ -78,16 +78,16 @@
                 12/20<br><span class="text-xs font-normal">抵達</span>
             </button>
             <button onclick="switchTab('day2')" id="btn-day2" class="flex-shrink-0 px-6 py-3 text-sm tab-inactive whitespace-nowrap transition-colors">
-                12/21<br><span class="text-xs font-normal">淺草/銀座</span>
+                12/21<br><span class="text-xs font-normal">築地/銀座</span>
             </button>
             <button onclick="switchTab('day3')" id="btn-day3" class="flex-shrink-0 px-6 py-3 text-sm tab-inactive whitespace-nowrap transition-colors">
                 12/22<br><span class="text-xs font-normal">迪士尼</span>
             </button>
             <button onclick="switchTab('day4')" id="btn-day4" class="flex-shrink-0 px-6 py-3 text-sm tab-inactive whitespace-nowrap transition-colors">
-                12/23<br><span class="text-xs font-normal">晴空塔</span>
+                12/23<br><span class="text-xs font-normal">晴空/兩津</span>
             </button>
             <button onclick="switchTab('day5')" id="btn-day5" class="flex-shrink-0 px-6 py-3 text-sm tab-inactive whitespace-nowrap transition-colors">
-                12/24<br><span class="text-xs font-normal">台場煙火</span>
+                12/24<br><span class="text-xs font-normal">聖誕夜</span>
             </button>
             <button onclick="switchTab('day6')" id="btn-day6" class="flex-shrink-0 px-6 py-3 text-sm tab-inactive whitespace-nowrap transition-colors">
                 12/25<br><span class="text-xs font-normal">新宿/澀谷</span>
@@ -120,12 +120,15 @@
                 <div class="relative">
                     <span class="absolute -left-[39px] top-0 bg-orange-400 w-5 h-5 rounded-full border-4 border-white"></span>
                     <h3 class="font-bold text-gray-800">錦系町週邊</h3>
-                    <p class="text-sm text-gray-500">Parco, Arcakit, Olinas 等商場。</p>
+                    <div class="text-sm text-gray-500">
+                        <p>• 晴空塔 (遠眺夜景)</p>
+                        <p>• 24hr 超市 / 唐吉訶德</p>
+                    </div>
                 </div>
                 <div class="relative">
                     <span class="absolute -left-[39px] top-0 bg-red-500 w-5 h-5 rounded-full border-4 border-white"></span>
-                    <h3 class="font-bold text-gray-800">晚餐: 鳥錦 Torikin</h3>
-                    <p class="text-sm text-gray-500">Kinshicho Honten 居酒屋</p>
+                    <h3 class="font-bold text-gray-800">晚餐</h3>
+                    <p class="text-sm text-gray-500">鰻魚飯 或 鳥錦 (Torikin) 錦系町店</p>
                     <a href="https://maps.app.goo.gl/xxxxx" class="text-xs text-blue-500 underline">Google Map</a>
                 </div>
             </div>
@@ -135,54 +138,62 @@
         <div id="day2" class="space-y-6 hidden animate-fade-in">
             <!-- Morning -->
             <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-                <div class="bg-gray-50 px-4 py-2 border-b font-bold text-gray-700">08:00 築地 & 人形町</div>
+                <div class="bg-gray-50 px-4 py-2 border-b font-bold text-gray-700">08:00 上午行程</div>
                 <div class="p-4 space-y-3">
-                    <p class="text-sm"><span class="font-bold">1. 築地市場</span>：早餐 (建議08:00前)。</p>
-                    <p class="text-xs text-gray-400 pl-4"><i class="fas fa-subway"></i> 日比谷線: 築地 → 人形町</p>
-                    <p class="text-sm"><span class="font-bold">2. 小網神社</span>：強運厄除、洗錢求財。</p>
+                    <div class="relative pl-4 border-l-2 border-gray-200 space-y-4">
+                        <div class="relative">
+                            <span class="absolute -left-[21px] top-1.5 w-3 h-3 rounded-full bg-gray-400"></span>
+                            <span class="font-bold text-gray-800">1. 築地市場</span>
+                            <p class="text-xs text-gray-500">早餐時段。</p>
+                        </div>
+                        <div class="relative">
+                            <span class="absolute -left-[21px] top-1.5 w-3 h-3 rounded-full bg-yellow-400"></span>
+                            <span class="font-bold text-gray-800">2. 小網神社</span>
+                            <p class="text-xs text-gray-500">人形町站，強運厄除、洗錢求財。</p>
+                        </div>
+                        <div class="relative">
+                            <span class="absolute -left-[21px] top-1.5 w-3 h-3 rounded-full bg-indigo-400"></span>
+                            <span class="font-bold text-gray-800">3. 銀座逛街</span>
+                            <p class="text-xs text-gray-500">第一波購物。</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <!-- Noon -->
             <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-                <div class="bg-red-50 px-4 py-2 border-b font-bold text-red-700">午間：淺草散策</div>
+                <div class="bg-red-50 px-4 py-2 border-b font-bold text-red-700">午間：淺草美食</div>
                 <div class="p-4 space-y-3">
-                    <p class="text-xs text-gray-400"><i class="fas fa-subway"></i> 淺草線: 人形町 → 淺草</p>
+                    <p class="text-xs text-gray-400"><i class="fas fa-subway"></i> 移動至淺草</p>
                     <div class="mb-2">
                         <span class="bg-red-100 text-red-600 text-xs px-2 py-1 rounded">午餐</span>
                         <span class="text-sm font-bold ml-1">色川鰻魚飯 或 鰻鐵</span>
                         <p class="text-xs text-gray-500 mt-1">※ 建議開店前30分鐘排隊</p>
                     </div>
-                    <ul class="text-sm text-gray-700 space-y-2 border-t pt-2">
-                        <li><i class="fas fa-check text-green-500 mr-2"></i>淺草寺參拜</li>
-                        <li><i class="fas fa-check text-green-500 mr-2"></i>花月堂菠蘿麵包</li>
-                        <li class="bg-yellow-50 p-2 rounded"><i class="fas fa-star text-yellow-500 mr-2"></i><b>被官稻荷神社</b> (就在淺草神社境內，求升遷/狐狸御守)</li>
-                    </ul>
                 </div>
             </div>
 
             <!-- Evening -->
             <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-                <div class="bg-indigo-50 px-4 py-2 border-b font-bold text-indigo-700">晚間：銀座 & 丸之內</div>
-                <div class="p-4 space-y-3">
-                    <p class="text-xs text-gray-400"><i class="fas fa-subway"></i> 銀座線: 淺草 → 銀座</p>
-                    <p class="text-sm"><span class="font-bold">5. 銀座 HARBS</span>：先登記候位，再逛街。</p>
-                    <p class="text-sm"><span class="font-bold">6. 晚餐</span>：銀座 檍 (炸豬排) 或 五代木花山。</p>
-                    
-                    <div class="bg-slate-800 text-white p-3 rounded mt-3">
-                        <h4 class="text-xs font-bold text-yellow-400 mb-2">★ 絕美夜景打卡點</h4>
-                        <ul class="text-xs space-y-1">
-                            <li>• 丸之內大樓 5F 露台 (拍車站正面)</li>
-                            <li>• KITTE 6F 花園 (拍車站側面)</li>
-                            <li>• 順遊：東京車站一番街、Number Sugar</li>
-                        </ul>
+                <div class="bg-indigo-50 px-4 py-2 border-b font-bold text-indigo-700">晚間：再訪銀座 & 丸之內</div>
+                <div class="p-4 space-y-4">
+                    <div class="relative pl-4 border-l-2 border-indigo-200 space-y-4">
+                        <div class="relative">
+                            <span class="absolute -left-[21px] top-1.5 w-3 h-3 rounded-full bg-indigo-400"></span>
+                            <span class="font-bold text-gray-800">HARBS 銀座店</span>
+                            <p class="text-xs text-gray-500">甜點時光。</p>
+                        </div>
+                        <div class="relative">
+                            <span class="absolute -left-[21px] top-1.5 w-3 h-3 rounded-full bg-indigo-400"></span>
+                            <span class="font-bold text-gray-800">晚餐：銀座 檍 (炸豬排)</span>
+                        </div>
+                        <div class="relative">
+                            <span class="absolute -left-[21px] top-1.5 w-3 h-3 rounded-full bg-blue-400"></span>
+                            <span class="font-bold text-gray-800">丸之內百貨 & 東京車站</span>
+                            <p class="text-xs text-gray-500">欣賞夜景。</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <!-- Late Night Guide -->
-            <div class="bg-gray-800 text-gray-300 p-3 rounded-xl text-xs mt-4">
-                <strong class="text-white block mb-1">銀座深夜指南 (20:00後)</strong>
-                <p>BicCamera (~22:00), 唐吉訶德 (24H), 松本清 (~22/23:00)</p>
             </div>
         </div>
 
@@ -204,10 +215,6 @@
                     <li class="flex items-start gap-2">
                         <i class="fas fa-mobile-alt text-blue-500 mt-1"></i>
                         <span>入園後立刻抽 DPA (Fantasy Springs 或熱門設施)。</span>
-                    </li>
-                    <li class="flex items-start gap-2">
-                        <i class="fas fa-utensils text-blue-500 mt-1"></i>
-                        <span>午餐/晚餐建議避開尖峰時段 (11:30-13:30)。</span>
                     </li>
                 </ul>
             </div>
@@ -237,7 +244,7 @@
 
             <!-- Afternoon: Ueno -> Akihabara -> Kameari -->
             <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-                <div class="bg-purple-50 px-4 py-2 border-b font-bold text-purple-800">午後路線</div>
+                <div class="bg-purple-50 px-4 py-2 border-b font-bold text-purple-800">午後：鐵腿行軍</div>
                 <div class="p-4 relative pl-6 border-l-2 border-purple-200 ml-3 space-y-6 my-2">
                     
                     <div class="relative">
@@ -256,12 +263,12 @@
                         <span class="absolute -left-[31px] top-1 bg-white border-2 border-purple-400 w-4 h-4 rounded-full"></span>
                         <h4 class="font-bold text-gray-800">龜有 (Kameari)</h4>
                         <span class="text-[10px] bg-green-100 text-green-800 px-1.5 rounded border border-green-200">烏龍派出所</span>
-                        <p class="text-sm text-gray-500">兩津勘吉 (葛飾區)。</p>
+                        <p class="text-sm text-gray-500">尋找兩津勘吉銅像 (葛飾區)。</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Evening: Back to Ueno / Optional -->
+            <!-- Evening -->
             <div class="bg-white rounded-xl shadow-sm overflow-hidden">
                  <div class="bg-gray-50 px-4 py-2 border-b font-bold text-gray-700">晚上</div>
                  <div class="p-4 space-y-3">
@@ -289,42 +296,36 @@
 
             <!-- Timeline -->
             <div class="relative pl-6 border-l-2 border-red-200 ml-3 py-2 space-y-8">
-                <!-- Lunch -->
                 <div class="relative">
                     <span class="absolute -left-[31px] top-1 bg-white border-2 border-red-400 w-4 h-4 rounded-full"></span>
-                    <h4 class="font-bold text-gray-800">午餐: 銀座鰻魚飯</h4>
-                    <p class="text-sm text-gray-500">竹葉亭 或 其他名店</p>
+                    <h4 class="font-bold text-gray-800">neel 神宮前 (澀谷)</h4>
+                    <p class="text-sm text-gray-500">人氣咖啡廳。</p>
                 </div>
-                <!-- Shopping -->
                 <div class="relative">
                     <span class="absolute -left-[31px] top-1 bg-white border-2 border-red-400 w-4 h-4 rounded-full"></span>
-                    <h4 class="font-bold text-gray-800">丸之內百貨</h4>
-                    <p class="text-sm text-gray-500">聖誕氣氛與燈飾。</p>
+                    <h4 class="font-bold text-gray-800">東京鐵塔 / 麻布台</h4>
+                    <p class="text-sm text-gray-500">芝公園散步、麻布台Hills。</p>
                 </div>
-                <!-- Tower area -->
                 <div class="relative">
                     <span class="absolute -left-[31px] top-1 bg-white border-2 border-red-400 w-4 h-4 rounded-full"></span>
-                    <h4 class="font-bold text-gray-800">東京鐵塔 / 芝公園</h4>
-                    <p class="text-xs text-gray-500 mb-1">接著步行前往 麻布台 Hills。</p>
+                    <h4 class="font-bold text-gray-800">六本木 -> 表參道</h4>
+                    <p class="text-sm text-gray-500">感受聖誕氣氛。</p>
                 </div>
-                <!-- Dinner Early -->
                 <div class="relative">
                     <span class="absolute -left-[31px] top-1 bg-white border-2 border-red-400 w-4 h-4 rounded-full"></span>
-                    <h4 class="font-bold text-gray-800">晚餐: AFURI 拉麵</h4>
-                    <p class="text-xs text-gray-500">建議在六本木/麻布台分店用餐 (約17:30)。</p>
+                    <h4 class="font-bold text-gray-800">晚餐: 阿夫力拉麵 (AFURI)</h4>
+                    <p class="text-xs text-gray-500">建議在六本木/表參道附近。</p>
                 </div>
-                <!-- Fireworks -->
                 <div class="relative">
                     <span class="absolute -left-[31px] top-1 bg-red-600 border-2 border-red-600 w-4 h-4 rounded-full animate-pulse"></span>
                     <h4 class="font-bold text-red-600">19:00 台場煙火</h4>
                     <span class="text-[10px] bg-red-100 text-red-600 px-2 rounded">必看</span>
                     <p class="text-xs text-gray-500 mt-1">需預留交通時間前往台場海濱公園。</p>
                 </div>
-                <!-- Night -->
                 <div class="relative">
                     <span class="absolute -left-[31px] top-1 bg-white border-2 border-purple-500 w-4 h-4 rounded-full"></span>
                     <h4 class="font-bold text-purple-700">六本木之夜</h4>
-                    <p class="text-xs text-gray-500">六本木 Hills 聖誕點燈 (Keyakizaka)。</p>
+                    <p class="text-xs text-gray-500">Shake Shack 宵夜 / 燈飾。</p>
                 </div>
             </div>
         </div>
@@ -332,41 +333,40 @@
         <!-- DAY 6: 12/25 Xmas -->
         <div id="day6" class="space-y-6 hidden animate-fade-in">
              <div class="bg-green-600 text-white text-center py-2 rounded-lg shadow-sm">
-                <i class="fas fa-gift"></i> 聖誕節
+                <i class="fas fa-gift"></i> 聖誕節 (吃貨行程)
             </div>
 
             <!-- Route visual -->
             <div class="flex items-center justify-between text-xs text-gray-500 px-2 mb-2">
-                <span>新宿</span> <i class="fas fa-chevron-right"></i> <span>原宿</span> <i class="fas fa-chevron-right"></i> <span>澀谷</span> <i class="fas fa-chevron-right"></i> <span>表參道</span>
+                <span>新宿</span> <i class="fas fa-chevron-right"></i> <span>原宿/澀谷</span> <i class="fas fa-chevron-right"></i> <span>新宿</span> <i class="fas fa-chevron-right"></i> <span>澀谷</span>
             </div>
 
             <div class="bg-white rounded-xl shadow-sm p-4 space-y-4">
-                <div class="border-b pb-3">
-                    <span class="spot-badge bg-blue-100 text-blue-800">新宿</span>
-                    <h4 class="font-bold inline">今半 (Sukiyaki) & 伊勢丹</h4>
-                    <p class="text-sm text-gray-500 mt-1">頂級壽喜燒午餐後，逛新宿伊勢丹本店。</p>
-                </div>
-
-                <div class="border-b pb-3">
-                    <span class="spot-badge bg-green-100 text-green-800">原宿</span>
-                    <h4 class="font-bold inline">明治神宮 & 東鄉神社</h4>
-                    <div class="mt-2 text-sm text-gray-600 space-y-1">
-                        <p>• <b>I'm donut ?</b> (原宿/澀谷店)</p>
-                        <p>• <b>若林之家</b> (特色景點/店鋪)</p>
+                <div class="relative pl-4 border-l-2 border-green-200 space-y-4">
+                    <div class="relative">
+                        <span class="absolute -left-[21px] top-1.5 w-3 h-3 rounded-full bg-blue-400"></span>
+                        <h4 class="font-bold text-gray-800">今半 新宿店 (午餐)</h4>
+                        <p class="text-xs text-gray-500">頂級壽喜燒 (新宿伊勢丹)。</p>
                     </div>
-                </div>
-
-                <div class="border-b pb-3">
-                    <span class="spot-badge bg-orange-100 text-orange-800">澀谷</span>
-                    <div class="flex justify-between items-center">
-                        <h4 class="font-bold inline">Shibuya SKY</h4>
-                        <span class="text-xs font-bold text-red-500">16:00 (已預約)</span>
+                    <div class="relative">
+                        <span class="absolute -left-[21px] top-1.5 w-3 h-3 rounded-full bg-green-400"></span>
+                        <h4 class="font-bold text-gray-800">明治神宮 & KENYAN 奶茶</h4>
+                        <p class="text-xs text-gray-500">接著去吃 IM Donut 甜甜圈。</p>
                     </div>
-                </div>
-
-                <div>
-                    <span class="spot-badge bg-purple-100 text-purple-800">表參道</span>
-                    <h4 class="font-bold inline">Kenyan 奶茶</h4>
+                    <div class="relative">
+                        <span class="absolute -left-[21px] top-1.5 w-3 h-3 rounded-full bg-blue-400"></span>
+                        <h4 class="font-bold text-gray-800">新宿蛋包飯</h4>
+                        <p class="text-xs text-gray-500">TAMAGO-KEN 或 egggg。</p>
+                    </div>
+                    <div class="relative">
+                        <span class="absolute -left-[21px] top-1.5 w-3 h-3 rounded-full bg-green-400"></span>
+                        <h4 class="font-bold text-gray-800">若林之家 & 東鄉神社</h4>
+                    </div>
+                    <div class="relative">
+                        <span class="absolute -left-[21px] top-1.5 w-3 h-3 rounded-full bg-orange-400"></span>
+                        <h4 class="font-bold text-gray-800">16:00 澀谷 SKY</h4>
+                        <p class="text-xs text-gray-500">隨後體驗 <b>澀谷卡丁車</b>。</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -375,8 +375,11 @@
         <div id="day7" class="space-y-6 hidden animate-fade-in">
              <div class="bg-white rounded-xl shadow-sm p-8 text-center">
                 <i class="fas fa-mountain text-6xl text-blue-200 mb-4"></i>
-                <h2 class="text-2xl font-bold text-gray-800">富士山</h2>
-                <p class="text-gray-500 mt-2">暫訂一日遊行程</p>
+                <h2 class="text-2xl font-bold text-gray-800">富士山一日遊</h2>
+                <div class="mt-4 text-left space-y-2 bg-gray-50 p-4 rounded-lg text-sm text-gray-600">
+                    <p><i class="fas fa-water text-blue-400 mr-2"></i><b>忍野八海</b>：清澈泉水美景。</p>
+                    <p><i class="fas fa-utensils text-orange-400 mr-2"></i><b>古屋炸物小店</b>：在地特色小吃。</p>
+                </div>
             </div>
         </div>
 
@@ -400,24 +403,24 @@
                 <!-- Morning -->
                 <div class="relative">
                     <span class="absolute -left-[31px] top-1 bg-white border-2 border-gray-400 w-4 h-4 rounded-full"></span>
-                    <h4 class="font-bold text-gray-800">飯店 Check-out</h4>
-                    <p class="text-sm text-gray-500">前往成田站 (JR/京成)。</p>
+                    <h4 class="font-bold text-gray-800">前往成田 (寄放行李)</h4>
+                    <p class="text-sm text-gray-500">8:05~9:55 或 12:05~13:55</p>
                     <div class="mt-1 inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded border border-yellow-200">
-                        <i class="fas fa-suitcase"></i> ＊行李寄放在「成田站」置物櫃或機場寄物
+                        <i class="fas fa-suitcase"></i> 建議先到機場/車站寄物櫃 (400-600日圓)
                     </div>
                 </div>
 
                 <!-- Omotesando -->
                 <div class="relative">
                     <span class="absolute -left-[31px] top-1 bg-white border-2 border-orange-500 w-4 h-4 rounded-full"></span>
-                    <h4 class="font-bold text-gray-800">成田表參道</h4>
-                    <p class="text-sm text-gray-500 mb-1">離機場僅一站，充滿江戶風情。</p>
+                    <h4 class="font-bold text-gray-800">成田山表參道</h4>
+                    <span class="text-xs font-bold text-red-500">15:00 前抵達</span>
                     <div class="bg-white p-2 rounded border border-gray-100 shadow-sm mt-2">
-                         <h5 class="font-bold text-sm text-orange-600 mb-1">必吃美食</h5>
+                         <h5 class="font-bold text-sm text-orange-600 mb-1">必去景點 (步行約15-20分)</h5>
                          <ul class="text-xs text-gray-600 space-y-1">
-                            <li>• <b>川豐 (Kawatoyo)</b>：百年鰻魚飯老店 (需抽號碼牌)。</li>
-                            <li>• <b>成田山新勝寺</b>：千年古剎參拜。</li>
-                            <li>• <b>米屋總本店</b>：羊羹伴手禮。</li>
+                            <li>• <b>川豐 (Kawatoyo)</b>：鰻魚飯名店。</li>
+                            <li>• <b>成田山新勝寺</b>：參拜。</li>
+                            <li>• <b>米屋 (菓子)</b>：伴手禮。</li>
                          </ul>
                     </div>
                 </div>
@@ -425,9 +428,9 @@
                 <!-- To Airport -->
                 <div class="relative">
                     <span class="absolute -left-[31px] top-1 bg-blue-500 border-2 border-blue-500 w-4 h-4 rounded-full"></span>
-                    <h4 class="font-bold text-blue-800">前往機場</h4>
-                    <p class="text-sm text-gray-600">搭乘 JR 或 京成電鐵 (約10-15分)。</p>
-                    <p class="text-xs text-red-500 font-bold mt-1">務必於 17:30 前抵達報到！</p>
+                    <h4 class="font-bold text-blue-800">回到機場</h4>
+                    <p class="text-sm text-gray-600">搭乘 JR 或 京成電鐵。</p>
+                    <p class="text-xs text-red-500 font-bold mt-1">最晚 17:30 要回到機場！</p>
                 </div>
             </div>
         </div>
